@@ -113,29 +113,29 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         wb = load_workbook(extraction_file)
         ws = wb.active
         
-        # Extract and fill listings starting from column B
+        # Extract and fill listings starting from row 2
         for i, listing in enumerate(listings, 1):
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
-            col = i + 1  # Column B is 2, C is 3, etc.
+            row = i + 1  # Row 2 is listing 1, row 3 is listing 2, etc.
             
-            # Map fields to rows
+            # Map fields to columns
             field_map = {
-                "Address": 5,
-                "Price": 4,
-                "Centris No.": 2,
-                "Date Sent": 3,
-                "Building Type": 6,
-                "Energy/Heating": 7,
-                "Garage": 8,
-                "Rooms": 9,
-                "Bedrooms": 10,
-                "Bath + PR": 11,
-                "Fireplace-Stove": 12,
-                "Pool": 13
+                "Centris No.": 1,
+                "Address": 2,
+                "Price": 3,
+                "Date Sent": 4,
+                "Building Type": 5,
+                "Energy/Heating": 6,
+                "Garage": 7,
+                "Rooms": 8,
+                "Bedrooms": 9,
+                "Bath + PR": 10,
+                "Fireplace-Stove": 11,
+                "Pool": 12
             }
             
-            for field_name, row in field_map.items():
+            for field_name, col in field_map.items():
                 ws.cell(row=row, column=col, value=fields.get(field_name, ""))
         
         wb.save(extraction_file)
