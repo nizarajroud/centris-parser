@@ -1,0 +1,294 @@
+=== Listing 1 ===
+Address: 2388 Rue de Chatham Longueuil (Le Vieux-Longueuil)
+Price: $599,900
+Centris No.: 25361731
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 12
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 2 ===
+Address: 329Z Rue Rougemont Longueuil (Le Vieux-Longueuil)
+Price: $609,000
+Centris No.: 27082307
+Date Sent: 2025-12-03
+Building Type: Attached corner unit
+Energy/Heating: Electricity
+Garage: No
+Rooms: 14
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 3 ===
+Address: 3819 Rue Régina-Gagnon Longueuil (Saint-Hubert)
+Price: $659,900
+Centris No.: 20567555
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 12
+Bedrooms: 3+0
+Bath + PR: 3+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 4 ===
+Address: 3891 Rue Régina-Gagnon Longueuil (Saint-Hubert)
+Price: $699,000$2,999/month X 1 year(s)
+Centris No.: 18876959
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 11
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: Yes
+
+=== Listing 5 ===
+Address: 2371 Rue Cartier Longueuil (Le Vieux-Longueuil)
+Price: $719,000
+Centris No.: 26458622
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 13
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 6 ===
+Address: 215 Rue Verchères Longueuil (Le Vieux-Longueuil)
+Price: $738,000
+Centris No.: 25427628
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 12
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 7 ===
+Address: 3324 Rue des Stellaires Longueuil (Le Vieux-Longueuil)
+Price: $739,900
+Centris No.: 28190540
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: 
+Garage: No
+Rooms: 4
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 8 ===
+Address: 3220 Rue Prince-Charles Longueuil (Saint-Hubert)
+Price: $749,000
+Centris No.: 23348837
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: 
+Garage: Yes
+Rooms: 13
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 9 ===
+Address: 5925 Rue Alexandre Brossard
+Price: $789,000
+Centris No.: 18586802
+Date Sent: 2025-12-03
+Building Type: Detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 14
+Bedrooms: 3+0
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 10 ===
+Address: 3927 Rue Régina-Gagnon Longueuil (Saint-Hubert)
+Price: $789,000
+Centris No.: 23742514
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 11
+Bedrooms: 3+0
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 11 ===
+Address: 5144 Rue Forester Longueuil (Saint-Hubert)
+Price: $689,000 + GST/QST ($792,177)1
+Centris No.: 25583395
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: 
+Garage: No
+Rooms: 10
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 12 ===
+Address: 5650 Av. Auteuil Brossard
+Price: $795,000
+Centris No.: 13239455
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 14
+Bedrooms: 3+0
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 13 ===
+Address: 4435Z Rue Lenoir, apt. 3 Brossard
+Price: $799,000
+Centris No.: 24952641
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 10
+Bedrooms: 4+0
+Bath + PR: 2+0
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 14 ===
+Address: 5140 Rue Hubert-Guertin Longueuil (Saint-Hubert)
+Price: $810,000
+Centris No.: 23215645
+Date Sent: 2025-12-03
+Building Type: Detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 10
+Bedrooms: 3+2
+Bath + PR: 2+0
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 15 ===
+Address: 5730 Rue Beckett Brossard
+Price: $814,000
+Centris No.: 27534654
+Date Sent: 2025-12-05
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 12
+Bedrooms: 3+0
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 16 ===
+Address: 3478 Rue Latour Longueuil (Saint-Hubert)
+Price: $820,000
+Centris No.: 19101224
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: 
+Garage: Yes
+Rooms: 15
+Bedrooms: 3+1
+Bath + PR: 3+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 17 ===
+Address: 7645 Rue de Lima Brossard
+Price: $838,000
+Centris No.: 22449386
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 9
+Bedrooms: 3+0
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 18 ===
+Address: 5808 Rue Alphonse Brossard
+Price: $849,000
+Centris No.: 9858092
+Date Sent: 2025-12-03
+Building Type: Semi-detached
+Energy/Heating: 
+Garage: Yes
+Rooms: 13
+Bedrooms: 3+0
+Bath + PR: 3+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 19 ===
+Address: 4768 Rue des Hydrangées Longueuil (Saint-Hubert)
+Price: $849,800
+Centris No.: 26451970
+Date Sent: 2025-12-03
+Building Type: Detached
+Energy/Heating: Electricity
+Garage: No
+Rooms: 11
+Bedrooms: 3+1
+Bath + PR: 2+1
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 20 ===
+Address: 1270 Rue Murray Longueuil (Saint-Hubert)
+Price: $899,000
+Centris No.: 12424094
+Date Sent: 2025-12-03
+Building Type: Detached
+Energy/Heating: Electricity
+Garage: Yes
+Rooms: 16
+Bedrooms: 4+2
+Bath + PR: 3+0
+Fireplace-Stove: No
+Pool: No
+
+=== Listing 21 ===
+Address: 5355 Av. Trudeau Longueuil (Saint-Hubert)
+Price: $899,000
+Centris No.: 12390499
+Date Sent: 2025-12-03
+Building Type: Detached
+Energy/Heating: 
+Garage: Yes
+Rooms: 15
+Bedrooms: 3+1
+Bath + PR: 3+1
+Fireplace-Stove: No
+Pool: No
+
