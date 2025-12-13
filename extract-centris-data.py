@@ -69,6 +69,16 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         return value.get_text(strip=True) if value else ""
                 return ""
             
+            def extract_sdb_se():
+                label = soup.find("span", class_="d-textStrong", string=lambda s: s and "SDB + SE" in s)
+                if label:
+                    parent = label.find_parent("div")
+                    next_div = parent.find_next_sibling("div") if parent else None
+                    if next_div:
+                        formula = next_div.find("span", class_="formula J_formula")
+                        return formula.get_text(strip=True) if formula else ""
+                return ""
+            
             centris_info = soup.find("span", class_="d-subtextSoft d-fontSize--smallest")
             centris_no = date_sent = ""
             if centris_info:
@@ -107,7 +117,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Garage": extract_field("Garage"),
                 "Rooms": extract_field("Pièces"),
                 "Bedrooms": extract_field("Chambres"),
-                "SDB + SE": extract_field("Salle de bain + SE"),
+                "SDB + SE": extract_sdb_se(),
                 "Fireplace-Stove": extract_field("Foyer-Poêle"),
                 "Pool": extract_field("Piscine"),
             }
