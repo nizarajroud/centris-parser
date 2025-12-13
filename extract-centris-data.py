@@ -46,7 +46,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
 
 
     with NovaAct(
-        starting_page="https://matrix.centris.ca/Matrix/Public/Portal.aspx?ID=0-3516933858-10&eml=bml6YXIuYWpyb3VkQGdtYWlsLmNvbQ==&L=1#1",
+        # starting_page="https://matrix.centris.ca/Matrix/Public/Portal.aspx?ID=0-3516933858-10&eml=bml6YXIuYWpyb3VkQGdtYWlsLmNvbQ==&L=1#1",
+        starting_page="https://matrix.centris.ca/Matrix/Public/Portal.aspx?ID=0-3521571244-10&eml=bml6YXIuYWpyb3VkQGdtYWlsLmNvbQ==&L=2",
         user_data_dir=user_data_dir,
         headless=headless,
         clone_user_data_dir=False,
@@ -73,9 +74,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             if centris_info:
                 parts = centris_info.get_text(separator="|").split("|")
                 for part in parts:
-                    if "Centris No." in part:
+                    if "No Centris" in part:
                         centris_no = part.split(":")[-1].strip()
-                    elif "Date Sent" in part:
+                    elif "Date d'envoi" in part:
                         date_sent = part.split(":")[-1].strip()
             
             address_elem = soup.find("div", class_="col-sm-12 d-text d-fontSize--largest")
@@ -105,13 +106,26 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         soup = BeautifulSoup(nova.page.content(), "html.parser")
         listings = soup.find_all("div", class_="multiLineDisplay")
         
-        from openpyxl import load_workbook
+        from openpyxl import load_workbook, Workbook
         
         extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
         
-        # Load existing workbook
-        wb = load_workbook(extraction_file)
+        # Load existing workbook or create new one
+        try:
+            wb = load_workbook(extraction_file)
+        except:
+            wb = Workbook()
         ws = wb.active
+        
+        # Clear entire worksheet
+        ws.delete_rows(1, ws.max_row)
+        
+        # Add headers
+        headers = ["Centris No.", "Address", "Price", "Date Sent", "Building Type", 
+                  "Energy/Heating", "Garage", "Rooms", "Bedrooms", "Bath + PR", 
+                  "Fireplace-Stove", "Pool"]
+        for col, header in enumerate(headers, 1):
+            ws.cell(row=1, column=col, value=header)
         
         # Extract all listings first
         all_listings = []
@@ -125,9 +139,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             if not price_str:
                 return -1
             try:
-                # Extract all $XXX,XXX patterns and get the largest one
+                # Extract prices starting with $ and having at least 3 digits
                 import re
-                matches = re.findall(r'\$[\d,]+', price_str)
+                matches = re.findall(r'\$\d{3}[\d,]*', price_str)
                 if matches:
                     prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
                     return max(prices)
@@ -141,15 +155,15 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         for i, fields in enumerate(all_listings, 1):
             row = i + 1  # Row 2 is listing 1, row 3 is listing 2, etc.
             
-            # Clean price to show only main price
+            # Clean price to show only main price in XXX XXX $ format
             price = fields.get("Price", "")
             if price:
                 import re
-                matches = re.findall(r'\$[\d,]+', price)
+                matches = re.findall(r'\$\d{3}[\d,]*', price)
                 if matches:
                     prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
                     main_price = max(prices)
-                    fields["Price"] = f"${main_price:,}"
+                    fields["Price"] = f"{main_price:,}".replace(',', ' ') + " $"
             
             # Map fields to columns
             field_map = {
