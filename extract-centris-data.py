@@ -83,6 +83,51 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 details_elem = soup.find("span", class_="d-textSoft")
                 return details_elem.get_text(strip=True) if details_elem else ""
             
+            def extract_building_style():
+                details = extract_details()
+                if "Maison " in details and " dans le quartier" in details:
+                    return details.split("Maison ")[1].split(" dans le quartier")[0]
+                return ""
+            
+            def extract_neighborhood():
+                details = extract_details()
+                if " dans le quartier " in details and " construite en " in details:
+                    return details.split(" dans le quartier ")[1].split(" construite en ")[0]
+                return ""
+            
+            def extract_construction_year():
+                details = extract_details()
+                if " construite en " in details:
+                    return details.split(" construite en ")[1]
+                return ""
+            
+            def format_date(date_str):
+                if not date_str:
+                    return ""
+                try:
+                    from datetime import datetime
+                    months = {
+                        'janvier': 'janvier', 'février': 'février', 'mars': 'mars', 'avril': 'avril',
+                        'mai': 'mai', 'juin': 'juin', 'juillet': 'juillet', 'août': 'août',
+                        'septembre': 'septembre', 'octobre': 'octobre', 'novembre': 'novembre', 'décembre': 'décembre'
+                    }
+                    # Parse various date formats and convert to "DD mois YYYY"
+                    if '/' in date_str:
+                        parts = date_str.split('/')
+                        if len(parts) == 3:
+                            day, month, year = parts
+                            month_name = list(months.values())[int(month) - 1]
+                            return f"{int(day)} {month_name} {year}"
+                    elif '-' in date_str:
+                        parts = date_str.split('-')
+                        if len(parts) == 3:
+                            year, month, day = parts
+                            month_name = list(months.values())[int(month) - 1]
+                            return f"{int(day)} {month_name} {year}"
+                    return date_str
+                except:
+                    return date_str
+            
             centris_info = soup.find("span", class_="d-subtextSoft d-fontSize--smallest")
             centris_no = date_sent = ""
             if centris_info:
@@ -115,7 +160,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Address": address,
                 "Price": price,
                 "Centris No.": centris_no,
-                "Date Sent": date_sent,
+                "Date Sent": format_date(date_sent),
                 "Building Type": extract_field("Type de bâtiment"),
                 "Energy/Heating": extract_field("Énergie/Chauffage"),
                 "Garage": extract_field("Garage"),
@@ -124,7 +169,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "SDB + SE": extract_sdb_se(),
                 "Fireplace-Stove": extract_field("Foyer-Poêle"),
                 "Pool": extract_field("Piscine"),
-                "Details": extract_details(),
+                "Building Style": extract_building_style(),
+                "Neighborhood": extract_neighborhood(),
+                "Construction Year": extract_construction_year(),
             }
         
         soup = BeautifulSoup(nova.page.content(), "html.parser")
@@ -147,7 +194,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         # Add headers
         headers = ["No Centris", "Adresse", "Prix", "Date d'envoi", "Type de bâtiment", 
                   "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
-                  "Foyer-Poêle", "Piscine", "Détails"]
+                  "Foyer-Poêle", "Piscine", "Style de bâtiment", "Quartier", "Année de construction"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
@@ -203,7 +250,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "SDB + SE": 10,
                 "Fireplace-Stove": 11,
                 "Pool": 12,
-                "Details": 13
+                "Building Style": 13,
+                "Neighborhood": 14,
+                "Construction Year": 15
             }
             
             for field_name, col in field_map.items():
