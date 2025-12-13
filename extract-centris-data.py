@@ -106,25 +106,29 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                     return ""
                 try:
                     from datetime import datetime
-                    months = {
-                        'janvier': 'janvier', 'février': 'février', 'mars': 'mars', 'avril': 'avril',
-                        'mai': 'mai', 'juin': 'juin', 'juillet': 'juillet', 'août': 'août',
-                        'septembre': 'septembre', 'octobre': 'octobre', 'novembre': 'novembre', 'décembre': 'décembre'
-                    }
-                    # Parse various date formats and convert to "DD mois YYYY"
+                    # Parse the date and calculate difference with current date
                     if '/' in date_str:
                         parts = date_str.split('/')
                         if len(parts) == 3:
-                            day, month, year = parts
-                            month_name = list(months.values())[int(month) - 1]
-                            return f"{int(day)} {month_name} {year}"
+                            day, month, year = int(parts[0]), int(parts[1]), int(parts[2])
+                            date_obj = datetime(year, month, day)
                     elif '-' in date_str:
                         parts = date_str.split('-')
                         if len(parts) == 3:
-                            year, month, day = parts
-                            month_name = list(months.values())[int(month) - 1]
-                            return f"{int(day)} {month_name} {year}"
-                    return date_str
+                            year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
+                            date_obj = datetime(year, month, day)
+                    else:
+                        return date_str
+                    
+                    current_date = datetime.now()
+                    diff = (current_date - date_obj).days
+                    
+                    if diff == 0:
+                        return "aujourd'hui"
+                    elif diff == 1:
+                        return "depuis 1 jour"
+                    else:
+                        return f"depuis {diff} jours"
                 except:
                     return date_str
             
@@ -160,7 +164,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Address": address,
                 "Price": price,
                 "Centris No.": centris_no,
-                "Date Sent": format_date(date_sent),
+                "Date d'app/maj": format_date(date_sent),
                 "Building Type": extract_field("Type de bâtiment"),
                 "Energy/Heating": extract_field("Énergie/Chauffage"),
                 "Garage": extract_field("Garage"),
@@ -192,7 +196,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Prix", "Date d'envoi", "Type de bâtiment", 
+        headers = ["No Centris", "Adresse", "Prix", "Date d'app/maj", "Type de bâtiment", 
                   "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
                   "Foyer-Poêle", "Piscine", "Style de bâtiment", "Quartier", "Année de construction"]
         for col, header in enumerate(headers, 1):
@@ -241,7 +245,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Centris No.": 1,
                 "Address": 2,
                 "Price": 3,
-                "Date Sent": 4,
+                "Date d'app/maj": 4,
                 "Building Type": 5,
                 "Energy/Heating": 6,
                 "Garage": 7,
