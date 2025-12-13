@@ -113,11 +113,43 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         wb = load_workbook(extraction_file)
         ws = wb.active
         
-        # Extract and fill listings starting from row 2
+        # Extract all listings first
+        all_listings = []
         for i, listing in enumerate(listings, 1):
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
+            all_listings.append(fields)
+        
+        # Sort by price (high to low)
+        def price_to_number(price_str):
+            if not price_str:
+                return -1
+            try:
+                # Extract all $XXX,XXX patterns and get the largest one
+                import re
+                matches = re.findall(r'\$[\d,]+', price_str)
+                if matches:
+                    prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
+                    return max(prices)
+                return -1
+            except:
+                return -1
+        
+        all_listings.sort(key=lambda x: price_to_number(x.get("Price", "")), reverse=True)
+        
+        # Write sorted listings starting from row 2
+        for i, fields in enumerate(all_listings, 1):
             row = i + 1  # Row 2 is listing 1, row 3 is listing 2, etc.
+            
+            # Clean price to show only main price
+            price = fields.get("Price", "")
+            if price:
+                import re
+                matches = re.findall(r'\$[\d,]+', price)
+                if matches:
+                    prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
+                    main_price = max(prices)
+                    fields["Price"] = f"${main_price:,}"
             
             # Map fields to columns
             field_map = {
@@ -139,6 +171,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 ws.cell(row=row, column=col, value=fields.get(field_name, ""))
         
         wb.save(extraction_file)
+        time.sleep(8)
         print(f"Extracted {len(listings)} listings to {extraction_file}")
 
 
