@@ -88,19 +88,28 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             price_elem = soup.find("span", class_="d-text d-fontSize--larger")
             price = price_elem.get_text(strip=True) if price_elem else ""
             
+            # Extract building type from description
+            desc_elem = soup.find("span", class_="d-textSoft")
+            building_type = ""
+            if desc_elem:
+                desc_text = desc_elem.get_text(strip=True)
+                # Extract building type (first part before "in the")
+                if " in the " in desc_text:
+                    building_type = desc_text.split(" in the ")[0].strip()
+            
             return {
                 "Address": address,
                 "Price": price,
                 "Centris No.": centris_no,
                 "Date Sent": date_sent,
-                "Building Type": extract_field("Building Type"),
-                "Energy/Heating": extract_field("Energy/Heating"),
+                "Building Type": extract_field("Type de bâtiment"),
+                "Energy/Heating": extract_field("Énergie/Chauffage"),
                 "Garage": extract_field("Garage"),
-                "Rooms": extract_field("Rooms"),
-                "Bedrooms": extract_field("Bedrooms"),
-                "Bath + PR": extract_field("Bath + PR"),
-                "Fireplace-Stove": extract_field("Fireplace-Stove"),
-                "Pool": extract_field("Pool"),
+                "Rooms": extract_field("Pièces"),
+                "Bedrooms": extract_field("Chambres"),
+                "SDB + SE": extract_field("Salle de bain + SE"),
+                "Fireplace-Stove": extract_field("Foyer-Poêle"),
+                "Pool": extract_field("Piscine"),
             }
         
         soup = BeautifulSoup(nova.page.content(), "html.parser")
@@ -121,9 +130,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["Centris No.", "Address", "Price", "Date Sent", "Building Type", 
-                  "Energy/Heating", "Garage", "Rooms", "Bedrooms", "Bath + PR", 
-                  "Fireplace-Stove", "Pool"]
+        headers = ["No Centris", "Adresse", "Prix", "Date d'envoi", "Type de bâtiment", 
+                  "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
+                  "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
@@ -176,7 +185,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Garage": 7,
                 "Rooms": 8,
                 "Bedrooms": 9,
-                "Bath + PR": 10,
+                "SDB + SE": 10,
                 "Fireplace-Stove": 11,
                 "Pool": 12
             }
