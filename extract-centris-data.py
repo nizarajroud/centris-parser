@@ -132,6 +132,36 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 except:
                     return date_str
             
+            def extract_street_address(address):
+                if not address:
+                    return ""
+                if '(' in address and ')' in address:
+                    # Pattern: <Adresse> <ville> <(secteur)>
+                    return address.split(' (')[0].rsplit(' ', 1)[0]
+                else:
+                    # Pattern: <Adresse> <ville>
+                    return address.rsplit(' ', 1)[0]
+            
+            def extract_city(address):
+                if not address:
+                    return ""
+                if '(' in address and ')' in address:
+                    # Pattern: <Adresse> <ville> <(secteur)>
+                    return address.split(' (')[0].rsplit(' ', 1)[1]
+                else:
+                    # Pattern: <Adresse> <ville>
+                    return address.rsplit(' ', 1)[1]
+            
+            def extract_sector(address):
+                if not address:
+                    return ""
+                if '(' in address and ')' in address:
+                    # Extract text between parentheses
+                    return address.split('(')[1].split(')')[0]
+                else:
+                    # If no sector, use city value
+                    return extract_city(address)
+            
             centris_info = soup.find("span", class_="d-subtextSoft d-fontSize--smallest")
             centris_no = date_sent = ""
             if centris_info:
@@ -162,6 +192,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             
             return {
                 "Address": address,
+                "Street Address": extract_street_address(address),
+                "City": extract_city(address),
+                "Sector": extract_sector(address),
                 "Price": price,
                 "Centris No.": centris_no,
                 "Date d'app/maj": format_date(date_sent),
@@ -196,7 +229,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Prix", "Date d'app/maj", "Type de bâtiment", 
+        headers = ["No Centris", "Adresse", "Adresse rue", "Ville", "Secteur", "Prix", "Date d'app/maj", "Type de bâtiment", 
                   "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
                   "Foyer-Poêle", "Piscine", "Style de bâtiment", "Quartier", "Année de construction"]
         for col, header in enumerate(headers, 1):
@@ -244,19 +277,22 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             field_map = {
                 "Centris No.": 1,
                 "Address": 2,
-                "Price": 3,
-                "Date d'app/maj": 4,
-                "Building Type": 5,
-                "Energy/Heating": 6,
-                "Garage": 7,
-                "Rooms": 8,
-                "Bedrooms": 9,
-                "SDB + SE": 10,
-                "Fireplace-Stove": 11,
-                "Pool": 12,
-                "Building Style": 13,
-                "Neighborhood": 14,
-                "Construction Year": 15
+                "Street Address": 3,
+                "City": 4,
+                "Sector": 5,
+                "Price": 6,
+                "Date d'app/maj": 7,
+                "Building Type": 8,
+                "Energy/Heating": 9,
+                "Garage": 10,
+                "Rooms": 11,
+                "Bedrooms": 12,
+                "SDB + SE": 13,
+                "Fireplace-Stove": 14,
+                "Pool": 15,
+                "Building Style": 16,
+                "Neighborhood": 17,
+                "Construction Year": 18
             }
             
             for field_name, col in field_map.items():
