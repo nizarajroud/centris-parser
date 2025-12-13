@@ -79,6 +79,10 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         return formula.get_text(strip=True) if formula else ""
                 return ""
             
+            def extract_details():
+                details_elem = soup.find("span", class_="d-textSoft")
+                return details_elem.get_text(strip=True) if details_elem else ""
+            
             centris_info = soup.find("span", class_="d-subtextSoft d-fontSize--smallest")
             centris_no = date_sent = ""
             if centris_info:
@@ -120,6 +124,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "SDB + SE": extract_sdb_se(),
                 "Fireplace-Stove": extract_field("Foyer-Poêle"),
                 "Pool": extract_field("Piscine"),
+                "Details": extract_details(),
             }
         
         soup = BeautifulSoup(nova.page.content(), "html.parser")
@@ -142,7 +147,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         # Add headers
         headers = ["No Centris", "Adresse", "Prix", "Date d'envoi", "Type de bâtiment", 
                   "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
-                  "Foyer-Poêle", "Piscine"]
+                  "Foyer-Poêle", "Piscine", "Détails"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
@@ -197,7 +202,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Bedrooms": 9,
                 "SDB + SE": 10,
                 "Fireplace-Stove": 11,
-                "Pool": 12
+                "Pool": 12,
+                "Details": 13
             }
             
             for field_name, col in field_map.items():
