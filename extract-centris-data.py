@@ -223,6 +223,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         
         extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
         
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(extraction_file), exist_ok=True)
+        
         # Load existing workbook or create new one
         try:
             wb = load_workbook(extraction_file)
