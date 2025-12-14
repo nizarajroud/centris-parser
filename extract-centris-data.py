@@ -237,8 +237,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Badge", "Date d'app/maj", "Année de construction", "Prix", "Style de bâtiment", 
-                  "Ville", "Secteur", "Quartier", "Adresse rue", "Type de bâtiment", "Garage", "Pièces", 
+        headers = ["No Centris", "Adresse", "Année de construction", "Ville", "Prix", "Style de bâtiment", "Garage", "Badge", 
+                  "Date d'app/maj", "Secteur", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
@@ -279,17 +279,17 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             field_map = {
                 "Centris No.": 1,
                 "Address": 2,
-                "Badge": 3,
-                "Date d'app/maj": 4,
-                "Construction Year": 5,
-                "Price": 6,
-                "Building Style": 7,
-                "City": 8,
-                "Sector": 9,
-                "Neighborhood": 10,
-                "Street Address": 11,
-                "Building Type": 12,
-                "Garage": 13,
+                "Construction Year": 3,
+                "City": 4,
+                "Price": 5,
+                "Building Style": 6,
+                "Garage": 7,
+                "Badge": 8,
+                "Date d'app/maj": 9,
+                "Sector": 10,
+                "Neighborhood": 11,
+                "Street Address": 12,
+                "Building Type": 13,
                 "Rooms": 14,
                 "Energy/Heating": 15,
                 "Bedrooms": 16,
