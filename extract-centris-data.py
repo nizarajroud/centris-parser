@@ -250,22 +250,16 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields = extract_fields(listing)
             all_listings.append(fields)
         
-        # Sort by price (high to low)
-        def price_to_number(price_str):
-            if not price_str:
+        # Sort by construction year (most recent to oldest)
+        def year_to_number(year_str):
+            if not year_str:
                 return -1
             try:
-                # Extract prices starting with $ and having at least 3 digits
-                import re
-                matches = re.findall(r'\$\d{3}[\d,]*', price_str)
-                if matches:
-                    prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
-                    return max(prices)
-                return -1
+                return int(year_str)
             except:
                 return -1
         
-        all_listings.sort(key=lambda x: price_to_number(x.get("Price", "")), reverse=True)
+        all_listings.sort(key=lambda x: year_to_number(x.get("Construction Year", "")), reverse=True)
         
         # Write sorted listings starting from row 2
         for i, fields in enumerate(all_listings, 1):
