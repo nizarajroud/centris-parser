@@ -27,6 +27,24 @@ from nova_act import NovaAct
 load_dotenv()
 
 
+def get_walkscore(address: str, nova) -> str:
+    """Get WalkScore for given address"""
+    if not address:
+        return ""
+    
+    try:
+        result = nova.act(f"Go to walkscore.com, search for '{address}' and return the Walk Score number")
+        if result and hasattr(result, 'response') and result.response:
+            import re
+            score_match = re.search(r'\b(\d{1,3})\b', result.response)
+            if score_match:
+                return score_match.group(1)
+        return ""
+    except Exception as e:
+        print(f"Error getting WalkScore: {e}")
+        return ""
+
+
 def main(user_data_dir: str = None, headless: bool = None) -> None:
     if user_data_dir is None:
         user_data_dir = os.getenv('USER_DATA_DIR')
@@ -237,8 +255,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Année de construction", "Ville", "Prix", "Style de bâtiment", "Garage", "Badge", 
-                  "Date d'app/maj", "Secteur", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
+        headers = ["No Centris", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "Style de bâtiment", 
+                  "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
@@ -248,6 +266,15 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         for i, listing in enumerate(listings, 1):
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
+            
+            # Get WalkScore only if EXTENDED_PARSE is enabled
+            if os.getenv('EXTENDED_PARSE') == '1':
+                address = fields.get("Address", "")
+                print(f"Getting WalkScore for: {address}")
+                fields["WalkScore"] = get_walkscore(address, nova)
+            else:
+                fields["WalkScore"] = ""
+            
             all_listings.append(fields)
         
         # Sort by construction year (most recent to oldest)
@@ -279,23 +306,24 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             field_map = {
                 "Centris No.": 1,
                 "Address": 2,
-                "Construction Year": 3,
-                "City": 4,
-                "Price": 5,
-                "Building Style": 6,
-                "Garage": 7,
-                "Badge": 8,
-                "Date d'app/maj": 9,
-                "Sector": 10,
-                "Neighborhood": 11,
-                "Street Address": 12,
-                "Building Type": 13,
-                "Rooms": 14,
-                "Energy/Heating": 15,
-                "Bedrooms": 16,
-                "SDB + SE": 17,
-                "Fireplace-Stove": 18,
-                "Pool": 19
+                "Price": 3,
+                "Construction Year": 4,
+                "City": 5,
+                "Sector": 6,
+                "WalkScore": 7,
+                "Building Style": 8,
+                "Garage": 9,
+                "Badge": 10,
+                "Date d'app/maj": 11,
+                "Neighborhood": 12,
+                "Street Address": 13,
+                "Building Type": 14,
+                "Rooms": 15,
+                "Energy/Heating": 16,
+                "Bedrooms": 17,
+                "SDB + SE": 18,
+                "Fireplace-Stove": 19,
+                "Pool": 20
             }
             
             for field_name, col in field_map.items():
