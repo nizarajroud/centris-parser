@@ -101,6 +101,10 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                     return details.split(" construite en ")[1]
                 return ""
             
+            def extract_badge():
+                badge = soup.find("span", class_="badge mtx-subheader-badge")
+                return badge.get_text(strip=True) if badge else ""
+            
             def format_date(date_str):
                 if not date_str:
                     return ""
@@ -209,6 +213,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Building Style": extract_building_style(),
                 "Neighborhood": extract_neighborhood(),
                 "Construction Year": extract_construction_year(),
+                "Badge": extract_badge(),
             }
         
         soup = BeautifulSoup(nova.page.content(), "html.parser")
@@ -231,7 +236,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         # Add headers
         headers = ["No Centris", "Adresse", "Adresse rue", "Ville", "Secteur", "Prix", "Date d'app/maj", "Type de bâtiment", 
                   "Énergie/Chauffage", "Garage", "Pièces", "Chambres", "SDB + SE", 
-                  "Foyer-Poêle", "Piscine", "Style de bâtiment", "Quartier", "Année de construction"]
+                  "Foyer-Poêle", "Piscine", "Style de bâtiment", "Quartier", "Année de construction", "Badge"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
@@ -292,7 +297,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Pool": 15,
                 "Building Style": 16,
                 "Neighborhood": 17,
-                "Construction Year": 18
+                "Construction Year": 18,
+                "Badge": 19
             }
             
             for field_name, col in field_map.items():
