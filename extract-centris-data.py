@@ -27,24 +27,6 @@ from nova_act import NovaAct
 load_dotenv()
 
 
-def get_walkscore(address: str, nova) -> str:
-    """Get WalkScore for given address"""
-    if not address:
-        return ""
-    
-    try:
-        result = nova.act(f"Go to walkscore.com, search for '{address}' and return the Walk Score number")
-        if result and hasattr(result, 'response') and result.response:
-            import re
-            score_match = re.search(r'\b(\d{1,3})\b', result.response)
-            if score_match:
-                return score_match.group(1)
-        return ""
-    except Exception as e:
-        print(f"Error getting WalkScore: {e}")
-        return ""
-
-
 def main(user_data_dir: str = None, headless: bool = None) -> None:
     if user_data_dir is None:
         user_data_dir = os.getenv('USER_DATA_DIR')
@@ -267,13 +249,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
             
-            # Get WalkScore only if EXTENDED_PARSE is enabled
-            if os.getenv('EXTENDED_PARSE') == '1':
-                address = fields.get("Address", "")
-                print(f"Getting WalkScore for: {address}")
-                fields["WalkScore"] = get_walkscore(address, nova)
-            else:
-                fields["WalkScore"] = ""
+            # Set empty WalkScore (will be filled by extended-parse.py if needed)
+            fields["WalkScore"] = ""
             
             all_listings.append(fields)
         
