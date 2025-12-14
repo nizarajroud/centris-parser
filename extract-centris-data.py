@@ -267,11 +267,11 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             price = fields.get("Price", "")
             if price:
                 import re
-                matches = re.findall(r'\$\d{3}[\d,]*', price)
+                matches = re.findall(r'\d{3}[\d\s,]*\s*\$', price)
                 if matches:
-                    prices = [int(match.replace('$', '').replace(',', '')) for match in matches]
-                    main_price = max(prices)
-                    fields["Price"] = f"{main_price:,}".replace(',', ' ') + " $"
+                    # Take the first (main) price
+                    main_price = matches[0].strip()
+                    fields["Price"] = main_price
             
             # Map fields to columns
             field_map = {
