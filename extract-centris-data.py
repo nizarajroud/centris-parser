@@ -237,7 +237,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "Style de bâtiment", 
+        headers = ["No Centris", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "Style de bâtiment", 
                   "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
@@ -249,8 +249,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
             
-            # Set empty WalkScore (will be filled by extended-parse.py if needed)
+            # Set empty WalkScore and DollardDistance (will be filled by extended-parse.py if needed)
             fields["WalkScore"] = ""
+            fields["DollardDistance"] = ""
             
             all_listings.append(fields)
         
@@ -288,19 +289,20 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "City": 5,
                 "Sector": 6,
                 "WalkScore": 7,
-                "Building Style": 8,
-                "Garage": 9,
-                "Badge": 10,
-                "Date d'app/maj": 11,
-                "Neighborhood": 12,
-                "Street Address": 13,
-                "Building Type": 14,
-                "Rooms": 15,
-                "Energy/Heating": 16,
-                "Bedrooms": 17,
-                "SDB + SE": 18,
-                "Fireplace-Stove": 19,
-                "Pool": 20
+                "DollardDistance": 8,
+                "Building Style": 9,
+                "Garage": 10,
+                "Badge": 11,
+                "Date d'app/maj": 12,
+                "Neighborhood": 13,
+                "Street Address": 14,
+                "Building Type": 15,
+                "Rooms": 16,
+                "Energy/Heating": 17,
+                "Bedrooms": 18,
+                "SDB + SE": 19,
+                "Fireplace-Stove": 20,
+                "Pool": 21
             }
             
             for field_name, col in field_map.items():
