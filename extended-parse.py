@@ -26,6 +26,30 @@ def get_walkscore(address: str, nova) -> str:
         return ""
 
 
+def getSuperficieDuterrain(centris_url: str, nova) -> str:
+    """Get Superficie du terrain from Centris property page"""
+    if not centris_url:
+        return ""
+    
+    try:
+        result = nova.act(f"Go to '{centris_url}' and find the 'Superficie du terrain' value and return only the value")
+        if result and hasattr(result, 'response') and result.response:
+            # Clean up the response to extract just the superficie value
+            response = result.response.strip()
+            # Remove common prefixes and return the value
+            if "superficie du terrain" in response.lower():
+                import re
+                # Extract measurement values like "1 234 m²" or "5,000 sq ft"
+                match = re.search(r'([\d\s,]+\s*(?:m²|sq\s*ft|pi²))', response, re.IGNORECASE)
+                if match:
+                    return match.group(1).strip()
+            return response
+        return ""
+    except Exception as e:
+        print(f"Error getting Superficie du terrain: {e}")
+        return ""
+
+
 def HowFarFromDollard(dollard_address: str, property_address: str, nova) -> str:
     """Calculate driving time in minutes from property to Dollard address using Google Maps"""
     if not dollard_address or not property_address:
@@ -75,10 +99,12 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         clone_user_data_dir=False,
     ) as nova:
         
-        # Find address, walkscore, and dollard distance columns
+        # Find address, walkscore, dollard distance, and superficie columns
         address_col = None
         walkscore_col = None
         dollard_col = None
+        centris_col = None
+        superficie_col = None
         
         for col in range(1, ws.max_column + 1):
             header = ws.cell(row=1, column=col).value
@@ -88,6 +114,10 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 walkscore_col = col
             elif header == "DollardDistance":
                 dollard_col = col
+            elif header == "No Centris":
+                centris_col = col
+            elif header == "SuperficieDuterrain":
+                superficie_col = col
         
         if not address_col:
             print("Could not find Adresse column")
@@ -117,9 +147,21 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         dollard_time = HowFarFromDollard(dollard_address, address, nova)
                         ws.cell(row=row, column=dollard_col, value=dollard_time)
                         time.sleep(2)
+                
+                # Process Superficie du terrain if column exists and empty
+                if superficie_col and centris_col:
+                    current_superficie = ws.cell(row=row, column=superficie_col).value
+                    if not current_superficie:
+                        centris_cell = ws.cell(row=row, column=centris_col)
+                        centris_url = centris_cell.hyperlink.target if centris_cell.hyperlink else ""
+                        if centris_url:
+                            print(f"Getting Superficie du terrain for row {row}: {centris_url}")
+                            superficie = getSuperficieDuterrain(centris_url, nova)
+                            ws.cell(row=row, column=superficie_col, value=superficie)
+                            time.sleep(2)
         
         wb.save(extraction_file)
-        print(f"Updated WalkScores and Dollard distances in {extraction_file}")
+        print(f"Updated WalkScores, Dollard distances, and Superficie du terrain in {extraction_file}")
 
 
 if __name__ == "__main__":
