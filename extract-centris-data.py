@@ -306,7 +306,32 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             }
             
             for field_name, col in field_map.items():
-                ws.cell(row=row, column=col, value=fields.get(field_name, ""))
+                value = fields.get(field_name, "")
+                
+                # Create hyperlink for Centris No.
+                if field_name == "Centris No." and value:
+                    centris_site = os.getenv('CENTRIS_SITE', '')
+                    if centris_site:
+                        ville = fields.get("City", "").lower().replace(" ", "-")
+                        secteur = fields.get("Sector", "").lower().replace(" ", "-")
+                        
+                        # Remove parentheses and content within them from secteur
+                        import re
+                        secteur = re.sub(r'\([^)]*\)', '', secteur).strip().replace(" ", "-")
+                        
+                        if ville == secteur or not secteur:
+                            url = f"{centris_site}maison~a-vendre~{ville}/{value}"
+                        else:
+                            url = f"{centris_site}maison~a-vendre~{ville}-{secteur}/{value}"
+                        
+                        # Create hyperlink
+                        ws.cell(row=row, column=col).hyperlink = url
+                        ws.cell(row=row, column=col).value = value
+                        ws.cell(row=row, column=col).style = "Hyperlink"
+                    else:
+                        ws.cell(row=row, column=col, value=value)
+                else:
+                    ws.cell(row=row, column=col, value=value)
         
         wb.save(extraction_file)
         time.sleep(8)
