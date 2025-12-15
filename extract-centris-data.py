@@ -237,7 +237,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "Style de bâtiment", 
+        headers = ["No Centris", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
                   "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
@@ -249,9 +249,10 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             print(f"Processing listing {i}/{len(listings)}...")
             fields = extract_fields(listing)
             
-            # Set empty WalkScore and DollardDistance (will be filled by extended-parse.py if needed)
+            # Set empty WalkScore, DollardDistance, and SuperficieDuterrain (will be filled by extended-parse.py if needed)
             fields["WalkScore"] = ""
             fields["DollardDistance"] = ""
+            fields["SuperficieDuterrain"] = ""
             
             all_listings.append(fields)
         
@@ -290,19 +291,20 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Sector": 6,
                 "WalkScore": 7,
                 "DollardDistance": 8,
-                "Building Style": 9,
-                "Garage": 10,
-                "Badge": 11,
-                "Date d'app/maj": 12,
-                "Neighborhood": 13,
-                "Street Address": 14,
-                "Building Type": 15,
-                "Rooms": 16,
-                "Energy/Heating": 17,
-                "Bedrooms": 18,
-                "SDB + SE": 19,
-                "Fireplace-Stove": 20,
-                "Pool": 21
+                "SuperficieDuterrain": 9,
+                "Building Style": 10,
+                "Garage": 11,
+                "Badge": 12,
+                "Date d'app/maj": 13,
+                "Neighborhood": 14,
+                "Street Address": 15,
+                "Building Type": 16,
+                "Rooms": 17,
+                "Energy/Heating": 18,
+                "Bedrooms": 19,
+                "SDB + SE": 20,
+                "Fireplace-Stove": 21,
+                "Pool": 22
             }
             
             for field_name, col in field_map.items():
