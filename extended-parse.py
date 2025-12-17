@@ -1,11 +1,12 @@
 import os
 import time
 import fire
+import boto3
 from dotenv import load_dotenv
 from pyfzf.pyfzf import FzfPrompt
 from openpyxl import load_workbook
 from nova_act import NovaAct
-
+from strands.models import BedrockModel
 load_dotenv()
 
 

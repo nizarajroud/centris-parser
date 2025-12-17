@@ -1,0 +1,235 @@
+{
+  "score_total": 58.5,
+  "score_non_negociables": 43,
+  "score_souhaits_importants": 11.5,
+  "score_souhaits_secondaires": 4,
+  "evaluation_detaillee": [
+    {
+      "critere": "Budget Maximal",
+      "poids_max": 10,
+      "points_obtenus": 10,
+      "justification": "Prix de 799 000$ est inférieur au budget maximal de 850 000$",
+      "valeur_observee": "799 000 $"
+    },
+    {
+      "critere": "Type de propriété",
+      "poids_max": 8,
+      "points_obtenus": 8,
+      "justification": "Maison unifamiliale détachée conforme aux critères",
+      "valeur_observee": "Maison (SingleFamilyResidence)"
+    },
+    {
+      "critere": "Style de bâtiment",
+      "poids_max": 7,
+      "points_obtenus": 0,
+      "justification": "Style non spécifié dans l'annonce, impossible à évaluer",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Année de construction",
+      "poids_max": 6,
+      "points_obtenus": 0,
+      "justification": "Année de construction non mentionnée dans l'annonce",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Garage",
+      "poids_max": 5,
+      "points_obtenus": 0,
+      "justification": "Données indiquent garage = False",
+      "valeur_observee": "Pas de garage"
+    },
+    {
+      "critere": "Nombre de chambres",
+      "poids_max": 8,
+      "points_obtenus": 8,
+      "justification": "5 chambres (3+2) répond au critère de 4+ chambres",
+      "valeur_observee": "5 chambres (3+2)"
+    },
+    {
+      "critere": "Fraîcheur Centris",
+      "poids_max": 4,
+      "points_obtenus": 1,
+      "justification": "Publié le 20/12/2024, plus de 14 jours",
+      "valeur_observee": "Date publication: 2024/12/20"
+    },
+    {
+      "critere": "Secteur géographique",
+      "poids_max": 9,
+      "points_obtenus": 6,
+      "justification": "Brossard correspond à 6 points selon la grille",
+      "valeur_observee": "Brossard (secteur R)"
+    },
+    {
+      "critere": "Proximité écoles",
+      "poids_max": 8,
+      "points_obtenus": 0,
+      "justification": "Information non disponible dans l'annonce",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Superficie habitable",
+      "poids_max": 4,
+      "points_obtenus": 0,
+      "justification": "Superficie non mentionnée dans l'annonce",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Fenestration/Orientation",
+      "poids_max": 3,
+      "points_obtenus": 0,
+      "justification": "Orientation non mentionnée",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Énergie chauffage",
+      "poids_max": 2,
+      "points_obtenus": 0,
+      "justification": "Type de chauffage non spécifié",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Stationnement (Allée)",
+      "poids_max": 2,
+      "points_obtenus": 1,
+      "justification": "Parking disponible mais nombre de places non précisé",
+      "valeur_observee": "Parking: True"
+    },
+    {
+      "critere": "Isolation/Résilience hiver",
+      "poids_max": 3,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Date d'emménagement",
+      "poids_max": 2,
+      "points_obtenus": 2,
+      "justification": "Propriété disponible à la vente, emménagement possible avant avril 2026",
+      "valeur_observee": "Disponible"
+    },
+    {
+      "critere": "Aménagement intérieur",
+      "poids_max": 3,
+      "points_obtenus": 0,
+      "justification": "Détails sur finitions non disponibles",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Espace rangement",
+      "poids_max": 2,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Zone gazon/jardin",
+      "poids_max": 2,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Salles de bain",
+      "poids_max": 2,
+      "points_obtenus": 2,
+      "justification": "3 salles de bain total (2 SDB + 1 salle d'eau probable)",
+      "valeur_observee": "3 salles de bain"
+    },
+    {
+      "critere": "WalkScore",
+      "poids_max": 1,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Calme et sécurité",
+      "poids_max": 2,
+      "points_obtenus": 1,
+      "justification": "Secteur R de Brossard, quartier résidentiel présumé calme",
+      "valeur_observee": "Secteur R, Brossard"
+    },
+    {
+      "critere": "Proximité parcs",
+      "poids_max": 1,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Potentiel de revente",
+      "poids_max": 2,
+      "points_obtenus": 1,
+      "justification": "Brossard est un secteur en développement, potentiel moyen",
+      "valeur_observee": "Brossard"
+    },
+    {
+      "critere": "Flexibilité",
+      "poids_max": 1,
+      "points_obtenus": 0.5,
+      "justification": "Propriété marquée comme investisseur (Investor: True), potentiel limité",
+      "valeur_observee": "Investor: True"
+    },
+    {
+      "critere": "Électroménagers inclus",
+      "poids_max": 0.5,
+      "points_obtenus": 0,
+      "justification": "Information non disponible",
+      "valeur_observee": "Non spécifié"
+    },
+    {
+      "critere": "Transports en commun",
+      "poids_max": 1,
+      "points_obtenus": 0.5,
+      "justification": "Brossard a accès au REM, mais distance non précisée",
+      "valeur_observee": "Brossard (REM accessible)"
+    },
+    {
+      "critere": "Air climatisé mural",
+      "poids_max": 0.5,
+      "points_obtenus": 0,
+      "justification": "AC indiqué comme False",
+      "valeur_observee": "AC: False"
+    },
+    {
+      "critere": "Extras",
+      "poids_max": 1,
+      "points_obtenus": 0,
+      "justification": "Pas de foyer mentionné (Fireplace: False)",
+      "valeur_observee": "Foyer: False"
+    }
+  ],
+  "points_forts": [
+    "Prix sous le budget maximal (799 000$ vs 850 000$)",
+    "5 chambres - dépasse le minimum requis de 4",
+    "3 salles de bain - répond aux besoins familiaux",
+    "Maison unifamiliale détachée conforme",
+    "Stationnement disponible",
+    "Propriété à revenus potentielle (marquée investisseur)"
+  ],
+  "points_faibles": [
+    "Pas de garage - critère essentiel pour le climat",
+    "Secteur Brossard moins prioritaire que Vieux-Longueuil ou Greenfield Park",
+    "Pas de climatisation",
+    "Pas de foyer",
+    "Annonce ancienne (plus de 14 jours)"
+  ],
+  "informations_manquantes": [
+    "Année de construction",
+    "Style de bâtiment (plain-pied, 2 étages, cottage)",
+    "Superficie habitable",
+    "Type de chauffage",
+    "Proximité des écoles (Collège Français, Hubert Perron)",
+    "Orientation/fenestration",
+    "État de l'isolation et toiture",
+    "Aménagement intérieur détaillé",
+    "Présence cabanon/sous-sol aménagé",
+    "Terrain/jardin",
+    "WalkScore",
+    "Électroménagers inclus"
+  ],
+  "recommandation": "ACCEPTABLE",
+  "conseil": "Cette propriété présente un score de 43/65 sur les critères non-négociables, ce qui est sous le seuil critique de 50/65. L'absence de garage est un point bloquant majeur pour le climat québécois. Le secteur Brossard est moins prioritaire que Vieux-Longueuil ou Greenfield Park. Avant de considérer cette propriété, il est ESSENTIEL de vérifier: 1) la possibilité de construire un garage, 2) l'année de construction, 3) la proximité des écoles ciblées. Si le garage peut être ajouté (+3 pts) et si la construction est récente (+3-6 pts), le score pourrait devenir acceptable. À visiter uniquement si ces informations sont favorables."
+}
