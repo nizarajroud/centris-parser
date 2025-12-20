@@ -59,33 +59,8 @@ def getSuperficieDuterrain(centris_url: str, nova) -> str:
                 response = response[1:-1]
             print(f"Superficie response for {centris_url}: {response}")
             
-            # Extract measurement values and convert to m²
-            import re
-            match = re.search(r'([\d\s,]+)\s*(m²|sq\s*ft|pi²|pieds?)', response, re.IGNORECASE)
-            if match:
-                value_str = match.group(1).replace(' ', '').replace(',', '')
-                unit = match.group(2).lower()
-                
-                try:
-                    value = float(value_str)
-                    
-                    # Convert to m²
-                    if 'sq' in unit or 'pi' in unit or 'pied' in unit or 'pc' in unit:
-                        # Convert square feet to m² (1 sq ft = 0.092903 m²)
-                        value_m2 = value * 0.092903
-                    else:
-                        # Already in m²
-                        value_m2 = value
-                    
-                    converted_value = f"{value_m2:.0f} m²"
-                    print(f"Converted value: {converted_value}")
-                    return converted_value
-                except ValueError:
-                    return response
-            
-            # If no pattern found but response exists, return it
-            if response and len(response) < 50:
-                return response
+            # Just return the raw response for now to see what we're getting
+            return response
                 
         return ""
     except Exception as e:
@@ -122,7 +97,7 @@ def HowFarFromDollard(dollard_address: str, property_address: str, nova) -> str:
         return ""
 
 
-def main(user_data_dir: str = None, headless: bool = None) -> None:
+def main(user_data_dir: str = None, headless: bool = None, field: str = None) -> None:
     """Process WalkScore for existing listings in Excel file"""
     
     if user_data_dir is None:
@@ -141,13 +116,23 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             headless = choice and "Headless" in choice[0]
 
     # Select which fields to process
-    fzf = FzfPrompt()
-    field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
-    selected_fields = fzf.prompt(field_options, "--prompt='Select fields to process (use TAB for multi-select): ' --multi")
-    
-    if not selected_fields:
-        print("No fields selected. Exiting.")
-        return
+    if field:
+        # Direct field parameter provided
+        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        if field in field_options:
+            selected_fields = [field]
+        else:
+            print(f"Invalid field '{field}'. Valid options: {', '.join(field_options)}")
+            return
+    else:
+        # Show menu
+        fzf = FzfPrompt()
+        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        selected_fields = fzf.prompt(field_options, "--prompt='Select fields to process (use TAB for multi-select): ' --multi")
+        
+        if not selected_fields:
+            print("No fields selected. Exiting.")
+            return
 
     extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
     print(f"Using Excel file: {extraction_file}")
