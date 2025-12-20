@@ -97,6 +97,42 @@ def HowFarFromDollard(dollard_address: str, property_address: str, nova) -> str:
         return ""
 
 
+def get_fiche_detaillee_link(centris_url: str, nova) -> str:
+    """Navigate to centris URL and extract 'Fiche détaillée' link"""
+    if not centris_url:
+        return ""
+    
+    try:
+        nova.page.goto(centris_url)
+        time.sleep(3)
+        
+        # Look for "Fiche détaillée" button/link
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(nova.page.content(), "html.parser")
+        
+        # Try multiple ways to find the link
+        fiche_link = soup.find("a", string=lambda s: s and "Fiche détaillée" in s)
+        if not fiche_link:
+            fiche_link = soup.find("a", title=lambda s: s and "Fiche détaillée" in s)
+        if not fiche_link:
+            fiche_link = soup.find("a", href=lambda s: s and "DetailledSheet" in s)
+        
+        if fiche_link and fiche_link.get("href"):
+            href = fiche_link["href"]
+            # Make absolute URL if relative
+            if href.startswith("/"):
+                href = "https://matrix.centris.ca" + href
+            print(f"Found fiche détaillée link: {href}")
+            return href
+        else:
+            print(f"No fiche détaillée link found for {centris_url}")
+            
+    except Exception as e:
+        print(f"Error getting fiche détaillée link: {e}")
+    
+    return ""
+
+
 def main(user_data_dir: str = None, headless: bool = None, field: str = None) -> None:
     """Process WalkScore for existing listings in Excel file"""
     
@@ -118,7 +154,7 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
     # Select which fields to process
     if field:
         # Direct field parameter provided
-        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain", "FicheDetailleeLink"]
         if field in field_options:
             selected_fields = [field]
         else:
@@ -127,7 +163,7 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
     else:
         # Show menu
         fzf = FzfPrompt()
-        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain", "FicheDetailleeLink"]
         selected_fields = fzf.prompt(field_options, "--prompt='Select fields to process (use TAB for multi-select): ' --multi")
         
         if not selected_fields:
@@ -159,6 +195,7 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
         dollard_col = None
         centris_col = None
         superficie_col = None
+        details_page_col = None
         
         for col in range(1, ws.max_column + 1):
             header = ws.cell(row=1, column=col).value
@@ -173,6 +210,8 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
                 centris_col = col
             elif header == "SuperficieDuterrain":
                 superficie_col = col
+            elif header == "details-page":
+                details_page_col = col
         
         print(f"Found columns - Address: {address_col}, WalkScore: {walkscore_col}, Dollard: {dollard_col}")
         
@@ -235,6 +274,26 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
                         print(f"No Centris URL found for row {row}")
                 else:
                     print(f"Skipping row {row} - already has SuperficieDuterrain: {current_superficie}")
+            
+            # Process Fiche détaillée link if selected and column exists and empty
+            if "FicheDetailleeLink" in selected_fields and details_page_col and centris_col:
+                current_details = ws.cell(row=row, column=details_page_col).value
+                print(f"Row {row}: Current details-page value = '{current_details}'")
+                if not current_details:
+                    centris_cell = ws.cell(row=row, column=centris_col)
+                    centris_url = centris_cell.hyperlink.target if centris_cell.hyperlink else ""
+                    if centris_url:
+                        print(f"Getting Fiche détaillée link for row {row}: {centris_url}")
+                        fiche_link = get_fiche_detaillee_link(centris_url, nova)
+                        if fiche_link:
+                            ws.cell(row=row, column=details_page_col, value=fiche_link)
+                            wb.save(extraction_file)  # Save immediately after each update
+                            print(f"Saved Fiche détaillée link for row {row}")
+                        time.sleep(2)
+                    else:
+                        print(f"No Centris URL found for row {row}")
+                else:
+                    print(f"Skipping row {row} - already has details-page: {current_details}")
         
         # Final save at the end
         wb.save(extraction_file)

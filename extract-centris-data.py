@@ -237,7 +237,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "score_total", "score_non_negociables", "score_souhaits_importants", "score_souhaits_secondaires", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
+        headers = ["No Centris", "details-page", "score_total", "score_non_negociables", "score_souhaits_importants", "score_souhaits_secondaires", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
                   "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
@@ -250,6 +250,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields = extract_fields(listing)
             
             # Set empty score columns and other fields (will be filled by other scripts if needed)
+            fields["details-page"] = ""
             fields["score_total"] = ""
             fields["score_non_negociables"] = ""
             fields["score_souhaits_importants"] = ""
@@ -288,31 +289,32 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             # Map fields to columns
             field_map = {
                 "Centris No.": 1,
-                "score_total": 2,
-                "score_non_negociables": 3,
-                "score_souhaits_importants": 4,
-                "score_souhaits_secondaires": 5,
-                "Address": 6,
-                "Price": 7,
-                "Construction Year": 8,
-                "City": 9,
-                "Sector": 10,
-                "WalkScore": 11,
-                "DollardDistance": 12,
-                "SuperficieDuterrain": 13,
-                "Building Style": 14,
-                "Garage": 15,
-                "Badge": 16,
-                "Date d'app/maj": 17,
-                "Neighborhood": 18,
-                "Street Address": 19,
-                "Building Type": 20,
-                "Rooms": 21,
-                "Energy/Heating": 22,
-                "Bedrooms": 23,
-                "SDB + SE": 24,
-                "Fireplace-Stove": 25,
-                "Pool": 26
+                "details-page": 2,
+                "score_total": 3,
+                "score_non_negociables": 4,
+                "score_souhaits_importants": 5,
+                "score_souhaits_secondaires": 6,
+                "Address": 7,
+                "Price": 8,
+                "Construction Year": 9,
+                "City": 10,
+                "Sector": 11,
+                "WalkScore": 12,
+                "DollardDistance": 13,
+                "SuperficieDuterrain": 14,
+                "Building Style": 15,
+                "Garage": 16,
+                "Badge": 17,
+                "Date d'app/maj": 18,
+                "Neighborhood": 19,
+                "Street Address": 20,
+                "Building Type": 21,
+                "Rooms": 22,
+                "Energy/Heating": 23,
+                "Bedrooms": 24,
+                "SDB + SE": 25,
+                "Fireplace-Stove": 26,
+                "Pool": 27
             }
             
             for field_name, col in field_map.items():

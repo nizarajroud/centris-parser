@@ -261,6 +261,7 @@ if __name__ == "__main__":
     # URLs d'exemple
     PONDERATION_SHEET_PATH = os.getenv('PONDERATION_SHEET_PATH')
     CENTRIS_URL = os.getenv('CENTRIS_URL')
+    EXTRACTION_CENTRIS = os.getenv('EXTRACTION_CENTRIS')
     
     if not PONDERATION_SHEET_PATH or not CENTRIS_URL:
         print("❌ Erreur: Les variables d'environnement PONDERATION_SHEET_PATH et CENTRIS_URL doivent être définies dans le fichier .env")
@@ -274,6 +275,52 @@ if __name__ == "__main__":
         )
         
         print(f"score_total: {total}/100, score_non_negociables: {non_neg}/65, score_souhaits_importants: {important}/25, score_souhaits_secondaires: {secondaire}/10")
+        
+        # Update Excel file with scores
+        if EXTRACTION_CENTRIS:
+            from openpyxl import load_workbook
+            import re
+            
+            # Extract centris number from URL
+            centris_match = re.search(r'mls(\d+)', CENTRIS_URL)
+            if centris_match:
+                centris_number = centris_match.group(1)
+                
+                wb = load_workbook(EXTRACTION_CENTRIS)
+                ws = wb.active
+                
+                # Find columns
+                score_cols = {}
+                for col in range(1, ws.max_column + 1):
+                    header = ws.cell(row=1, column=col).value
+                    if header == "score_total":
+                        score_cols['total'] = col
+                    elif header == "score_non_negociables":
+                        score_cols['non_neg'] = col
+                    elif header == "score_souhaits_importants":
+                        score_cols['important'] = col
+                    elif header == "score_souhaits_secondaires":
+                        score_cols['secondaire'] = col
+                
+                # Find row with matching centris number
+                for row in range(2, ws.max_row + 1):
+                    cell_value = str(ws.cell(row=row, column=1).value or "")
+                    if centris_number in cell_value:
+                        # Update scores
+                        if 'total' in score_cols:
+                            ws.cell(row=row, column=score_cols['total'], value=total)
+                        if 'non_neg' in score_cols:
+                            ws.cell(row=row, column=score_cols['non_neg'], value=non_neg)
+                        if 'important' in score_cols:
+                            ws.cell(row=row, column=score_cols['important'], value=important)
+                        if 'secondaire' in score_cols:
+                            ws.cell(row=row, column=score_cols['secondaire'], value=secondaire)
+                        
+                        wb.save(EXTRACTION_CENTRIS)
+                        print(f"✅ Scores mis à jour dans {EXTRACTION_CENTRIS} pour le Centris {centris_number}")
+                        break
+                else:
+                    print(f"⚠️ Centris {centris_number} non trouvé dans le fichier Excel")
         
     except Exception as e:
         print(f"❌ Erreur: {str(e)}")
