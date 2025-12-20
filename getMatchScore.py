@@ -67,10 +67,10 @@ def scrape_centris_property(centris_url: str) -> Dict:
         }
         
         # 2. Enrichir avec les données Excel
-        extraction_sheet_url = os.getenv('EXTRACTION_SHEET_URL')
-        if extraction_sheet_url:
-            df = get_google_sheet_as_dataframe(extraction_sheet_url)
-            property_row = df[df.iloc[:, 0].astype(str).str.contains(centris_number, na=False)]
+        extraction_centris_path = os.getenv('EXTRACTION_CENTRIS')
+        if extraction_centris_path:
+            df = pd.read_excel(extraction_centris_path)
+            property_row = df[df.iloc[:, 0].astype(str).str.contains(centris_number, na=False, regex=False)]
             
             if not property_row.empty:
                 property_data['excel_data'] = property_row.iloc[0].to_dict()
@@ -82,16 +82,16 @@ def scrape_centris_property(centris_url: str) -> Dict:
 
 
 def calculate_matching_score(
-    google_sheet_url: str, 
+    ponderation_sheet_path: str, 
     centris_url: str,
     aws_region: str = 'us-east-1'
 ) -> Tuple[float, float, float, float]:
     """
     Calcule le score de correspondance entre une propriété Centris et les critères
-    définis dans un Google Sheet.
+    définis dans un fichier Excel local.
     
     Args:
-        google_sheet_url: URL publique du Google Sheet contenant les critères
+        ponderation_sheet_path: Chemin vers le fichier Excel contenant les critères
         centris_url: URL de la propriété sur Centris
         aws_region: Région AWS pour Bedrock (défaut: us-east-1)
         
@@ -100,7 +100,7 @@ def calculate_matching_score(
     """
     
     # 1. Charger les critères depuis Google Sheet
-    criteria_df = get_google_sheet_as_dataframe(google_sheet_url)
+    criteria_df = get_google_sheet_as_dataframe(ponderation_sheet_path)
     criteria_text = criteria_df.to_string()
     
     # 2. Scraper la propriété Centris
@@ -259,16 +259,16 @@ def display_evaluation_report(details: Dict) -> None:
 # Exemple d'utilisation
 if __name__ == "__main__":
     # URLs d'exemple
-    GOOGLE_SHEET_URL = os.getenv('PONDERATION_SHEET_URL')
+    PONDERATION_SHEET_PATH = os.getenv('PONDERATION_SHEET_PATH')
     CENTRIS_URL = os.getenv('CENTRIS_URL')
     
-    if not GOOGLE_SHEET_URL or not CENTRIS_URL:
-        print("❌ Erreur: Les variables d'environnement PONDERATION_SHEET_URL et CENTRIS_URL doivent être définies dans le fichier .env")
+    if not PONDERATION_SHEET_PATH or not CENTRIS_URL:
+        print("❌ Erreur: Les variables d'environnement PONDERATION_SHEET_PATH et CENTRIS_URL doivent être définies dans le fichier .env")
         exit(1)
     
     try:
         total, non_neg, important, secondaire = calculate_matching_score(
-            google_sheet_url=GOOGLE_SHEET_URL,
+            ponderation_sheet_path=PONDERATION_SHEET_PATH,
             centris_url=CENTRIS_URL,
             aws_region='us-east-1'
         )
