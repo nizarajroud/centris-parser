@@ -237,7 +237,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         ws.delete_rows(1, ws.max_row)
         
         # Add headers
-        headers = ["No Centris", "details-page", "score_total", "score_non_negociables", "score_souhaits_importants", "score_souhaits_secondaires", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
+        headers = ["No Centris", "details-page", "final-details-link", "score_total", "score_non_negociables", "score_souhaits_importants", "score_souhaits_secondaires", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
                   "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
@@ -250,7 +250,20 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields = extract_fields(listing)
             
             # Set empty score columns and other fields (will be filled by other scripts if needed)
-            fields["details-page"] = ""
+            centris_no = fields.get("Centris No.", "")
+            if centris_no:
+                # Build passerelle URL for details-page
+                passerelle_url = f"https://passerelle.centris.ca/redirect.aspx?NoMLS={centris_no}&Lang=F&source=centris.ca"
+                fields["details-page"] = passerelle_url
+            else:
+                fields["details-page"] = ""
+            
+            # Set default value for final-details-link
+            if centris_no:
+                fields["final-details-link"] = f"{centris_no}-More"
+            else:
+                fields["final-details-link"] = ""
+            
             fields["score_total"] = ""
             fields["score_non_negociables"] = ""
             fields["score_souhaits_importants"] = ""
@@ -290,31 +303,32 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             field_map = {
                 "Centris No.": 1,
                 "details-page": 2,
-                "score_total": 3,
-                "score_non_negociables": 4,
-                "score_souhaits_importants": 5,
-                "score_souhaits_secondaires": 6,
-                "Address": 7,
-                "Price": 8,
-                "Construction Year": 9,
-                "City": 10,
-                "Sector": 11,
-                "WalkScore": 12,
-                "DollardDistance": 13,
-                "SuperficieDuterrain": 14,
-                "Building Style": 15,
-                "Garage": 16,
-                "Badge": 17,
-                "Date d'app/maj": 18,
-                "Neighborhood": 19,
-                "Street Address": 20,
-                "Building Type": 21,
-                "Rooms": 22,
-                "Energy/Heating": 23,
-                "Bedrooms": 24,
-                "SDB + SE": 25,
-                "Fireplace-Stove": 26,
-                "Pool": 27
+                "final-details-link": 3,
+                "score_total": 4,
+                "score_non_negociables": 5,
+                "score_souhaits_importants": 6,
+                "score_souhaits_secondaires": 7,
+                "Address": 8,
+                "Price": 9,
+                "Construction Year": 10,
+                "City": 11,
+                "Sector": 12,
+                "WalkScore": 13,
+                "DollardDistance": 14,
+                "SuperficieDuterrain": 15,
+                "Building Style": 16,
+                "Garage": 17,
+                "Badge": 18,
+                "Date d'app/maj": 19,
+                "Neighborhood": 20,
+                "Street Address": 21,
+                "Building Type": 22,
+                "Rooms": 23,
+                "Energy/Heating": 24,
+                "Bedrooms": 25,
+                "SDB + SE": 26,
+                "Fireplace-Stove": 27,
+                "Pool": 28
             }
             
             for field_name, col in field_map.items():
@@ -340,6 +354,16 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         ws.cell(row=row, column=col).hyperlink = url
                         ws.cell(row=row, column=col).value = value
                         ws.cell(row=row, column=col).style = "Hyperlink"
+                    else:
+                        ws.cell(row=row, column=col, value=value)
+                # Create hyperlink for details-page
+                elif field_name == "details-page" and value:
+                    centris_no = fields.get("Centris No.", "")
+                    if centris_no:
+                        cell = ws.cell(row=row, column=col)
+                        cell.hyperlink = value
+                        cell.value = f"{centris_no}-details"
+                        cell.style = "Hyperlink"
                     else:
                         ws.cell(row=row, column=col, value=value)
                 else:
