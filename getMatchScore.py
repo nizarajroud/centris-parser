@@ -40,7 +40,7 @@ def get_google_sheet_as_dataframe(sheet_url: str) -> pd.DataFrame:
 
 def scrape_centris_property(centris_url: str) -> Dict:
     """
-    Extrait les informations d'une propriété depuis Centris.
+    Extrait les informations d'une propriété depuis Centris et les enrichit avec les données Excel.
     
     Args:
         centris_url: URL de la propriété sur Centris
@@ -52,28 +52,40 @@ def scrape_centris_property(centris_url: str) -> Dict:
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
     
+    # Extraire le numéro Centris de l'URL
+    centris_number = centris_url.split('/')[-1] if '/' in centris_url else centris_url
+    
     try:
+        # 1. Scraper le HTML de Centris
         response = requests.get(centris_url, headers=headers)
         response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Extraire les informations clés (à adapter selon la structure Centris)
         property_data = {
             'url': centris_url,
+            'centris_number': centris_number,
             'html_content': response.text[:50000]  # Limiter pour éviter dépassement token
         }
+        
+        # 2. Enrichir avec les données Excel
+        extraction_sheet_url = os.getenv('EXTRACTION_SHEET_URL')
+        if extraction_sheet_url:
+            df = get_google_sheet_as_dataframe(extraction_sheet_url)
+            property_row = df[df.iloc[:, 0].astype(str).str.contains(centris_number, na=False)]
+            
+            if not property_row.empty:
+                property_data['excel_data'] = property_row.iloc[0].to_dict()
         
         return property_data
         
     except Exception as e:
-        raise Exception(f"Erreur lors du scraping Centris: {str(e)}")
+        raise Exception(f"Erreur lors de l'extraction des données: {str(e)}")
 
 
 def calculate_matching_score(
     google_sheet_url: str, 
     centris_url: str,
     aws_region: str = 'us-east-1'
-) -> Tuple[float, Dict]:
+) -> Tuple[float, float, float, float]:
     """
     Calcule le score de correspondance entre une propriété Centris et les critères
     définis dans un Google Sheet.
@@ -84,22 +96,17 @@ def calculate_matching_score(
         aws_region: Région AWS pour Bedrock (défaut: us-east-1)
         
     Returns:
-        Tuple contenant:
-            - score: Score total (0-100)
-            - details: Dictionnaire avec détails de l'évaluation
+        Tuple[float, float, float, float]: (score_total, score_non_negociables, score_souhaits_importants, score_souhaits_secondaires)
     """
     
     # 1. Charger les critères depuis Google Sheet
-    print("📊 Chargement des critères depuis Google Sheet...")
     criteria_df = get_google_sheet_as_dataframe(google_sheet_url)
     criteria_text = criteria_df.to_string()
     
     # 2. Scraper la propriété Centris
-    print("🏠 Extraction des données de la propriété Centris...")
     property_data = scrape_centris_property(centris_url)
     
     # 3. Initialiser le client Bedrock avec boto3
-    print("🤖 Initialisation du client AWS Bedrock...")
     bedrock = boto3.client(
         service_name='bedrock-runtime',
         region_name=aws_region
@@ -115,9 +122,12 @@ Voici le tableau des critères avec leurs poids respectifs:
 
 # PROPRIÉTÉ À ÉVALUER
 URL: {property_data['url']}
+Numéro Centris: {property_data['centris_number']}
 
 Voici le contenu HTML de la page Centris (extrait):
 {property_data['html_content']}
+
+{f"Données Excel supplémentaires: {property_data['excel_data']}" if 'excel_data' in property_data else ""}
 
 # TÂCHE
 1. Extraire toutes les caractéristiques pertinentes de la propriété depuis le HTML
@@ -152,8 +162,6 @@ Tu DOIS répondre UNIQUEMENT avec un JSON valide, sans aucun texte avant ou apr�
 Réponds UNIQUEMENT avec le JSON, rien d'autre."""
 
     # 5. Appeler Claude via Bedrock
-    print("⚡ Analyse en cours avec Claude Opus 4.5...")
-    
     try:
         response = bedrock.invoke_model(
             modelId="us.anthropic.claude-opus-4-5-20251101-v1:0",
@@ -195,16 +203,7 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre."""
         
         result = json.loads(response_text.strip())
         
-        score = result['score_total']
-        details = result
-        
-        print(f"\n✅ Score calculé: {score}/100")
-        print(f"   📋 Non-négociables: {result['score_non_negociables']}/65")
-        print(f"   📋 Souhaits importants: {result['score_souhaits_importants']}/25")
-        print(f"   📋 Souhaits secondaires: {result['score_souhaits_secondaires']}/10")
-        print(f"   🎯 Recommandation: {result['recommandation']}")
-        
-        return score, details
+        return result['score_total'], result['score_non_negociables'], result['score_souhaits_importants'], result['score_souhaits_secondaires']
         
     except json.JSONDecodeError as e:
         raise Exception(f"Erreur lors du parsing JSON: {str(e)}\nRéponse reçue: {response_text[:500]}")
@@ -268,20 +267,13 @@ if __name__ == "__main__":
         exit(1)
     
     try:
-        score, details = calculate_matching_score(
+        total, non_neg, important, secondaire = calculate_matching_score(
             google_sheet_url=GOOGLE_SHEET_URL,
             centris_url=CENTRIS_URL,
             aws_region='us-east-1'
         )
         
-        # Afficher le rapport complet
-        display_evaluation_report(details)
-        
-        # Optionnel: Sauvegarder le résultat en JSON
-        output_file = 'evaluation_result.json'
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(details, f, ensure_ascii=False, indent=2)
-        print(f"\n💾 Résultats sauvegardés dans: {output_file}")
+        print(f"score_total: {total}/100, score_non_negociables: {non_neg}/65, score_souhaits_importants: {important}/25, score_souhaits_secondaires: {secondaire}/10")
         
     except Exception as e:
         print(f"❌ Erreur: {str(e)}")
