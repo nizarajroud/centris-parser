@@ -248,7 +248,11 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields = extract_fields(listing)
             
             # Set empty score columns and other fields (will be filled by other scripts if needed)
-            fields["details-page"] = ""
+            centris_no = fields.get("Centris No.", "")
+            if centris_no:
+                fields["details-page"] = f"{centris_no}-details"
+            else:
+                fields["details-page"] = ""
             fields["score_total"] = ""
             
             fields["score_total"] = ""
@@ -271,6 +275,22 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 return -1
         
         all_listings.sort(key=lambda x: year_to_number(x.get("Construction Year", "")), reverse=True)
+        
+        # Load manual-details tab to get cells with embedded links
+        manual_details_cells = {}
+        try:
+            if 'manual-details' in wb.sheetnames:
+                manual_ws = wb['manual-details']
+                for row_idx, row in enumerate(manual_ws.iter_rows(min_row=2), start=2):
+                    if row[0].value:  # Centris No. in first column
+                        centris_no = str(row[0].value).strip()
+                        if len(row) > 1 and row[1]:  # Cell with link in second column
+                            manual_details_cells[centris_no] = row[1]
+                print(f"Loaded {len(manual_details_cells)} cells from manual-details tab")
+            else:
+                print("Warning: manual-details tab not found")
+        except Exception as e:
+            print(f"Warning: Could not load manual-details tab: {e}")
         
         # Write sorted listings starting from row 2
         for i, fields in enumerate(all_listings, 1):
@@ -345,13 +365,18 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 # Create hyperlink for details-page
                 elif field_name == "details-page" and value:
                     centris_no = fields.get("Centris No.", "")
-                    if centris_no:
-                        cell = ws.cell(row=row, column=col)
-                        cell.hyperlink = value
-                        cell.value = f"{centris_no}-details"
-                        cell.style = "Hyperlink"
+                    cell = ws.cell(row=row, column=col)
+                    if centris_no and centris_no in manual_details_cells:
+                        # Copy the cell with its embedded link
+                        source_cell = manual_details_cells[centris_no]
+                        cell.value = source_cell.value
+                        if source_cell.hyperlink:
+                            cell.hyperlink = source_cell.hyperlink
+                            cell.style = "Hyperlink"
+                        print(f"Copied cell for {centris_no}: {source_cell.value}")
                     else:
-                        ws.cell(row=row, column=col, value=value)
+                        cell.value = value
+                        print(f"No cell found for {centris_no}")
                 else:
                     ws.cell(row=row, column=col, value=value)
         
