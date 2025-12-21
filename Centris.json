@@ -1,0 +1,162 @@
+{
+  "name": "Centris",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2992b0e9-4ac1-48df-8512-befdb718bc4a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "command": "python /home/nizar/workspace/Trainings/centris-parser/extract-centris-data.py"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "18a16681-de62-428d-8dc3-52c2f8a136a4",
+      "name": "extract centris data",
+      "executeOnce": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "python /home/nizar/workspace/Trainings/centris-parser/extended-parse.py --field=WalkScore"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d8685fb1-0ac9-41b7-b467-56314accb798",
+      "name": "WalkScore",
+      "retryOnFail": true,
+      "executeOnce": true,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "command": "python /home/nizar/workspace/Trainings/centris-parser/extended-parse.py --field=DollardDistance"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "3e979dc9-c537-4046-b0fe-51be8c88589a",
+      "name": "DollardDistance",
+      "executeOnce": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "python /home/nizar/workspace/Trainings/centris-parser/extended-parse.py --field=SuperficieDuterrain"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        864,
+        0
+      ],
+      "id": "3a5c2220-bc45-496b-b345-c26957ac9b05",
+      "name": "SuperficieDuterrain",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "python /home/nizar/workspace/Trainings/centris-parser/getMatchScore.py"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "c989ab89-d8a0-4eaf-acef-8fc90d232534",
+      "name": "get match Score",
+      "executeOnce": true,
+      "retryOnFail": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "extract centris data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract centris data": {
+      "main": [
+        [
+          {
+            "node": "WalkScore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WalkScore": {
+      "main": [
+        [
+          {
+            "node": "DollardDistance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DollardDistance": {
+      "main": [
+        [
+          {
+            "node": "SuperficieDuterrain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SuperficieDuterrain": {
+      "main": [
+        [
+          {
+            "node": "get match Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "81a2aab1-81eb-4d29-8bba-6b9c2b940ff7",
+  "meta": {
+    "instanceId": "29bbad6a021294d5b83ebed3249a5266272c6039eb11ee512f64a5f0562491f0"
+  },
+  "id": "so2C7IpwvV2ZV0sW",
+  "tags": []
+}
