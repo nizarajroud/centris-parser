@@ -256,71 +256,90 @@ def display_evaluation_report(details: Dict) -> None:
         print(f"   Justification: {item['justification']}")
 
 
+def process_all_properties_from_excel(
+    ponderation_sheet_path: str,
+    extraction_file_path: str,
+    aws_region: str = 'us-east-1'
+) -> None:
+    """
+    Process all properties from Excel file using details-page embedded URLs.
+    
+    Args:
+        ponderation_sheet_path: Path to ponderation criteria sheet
+        extraction_file_path: Path to extraction Excel file
+        aws_region: AWS region for Bedrock
+    """
+    from openpyxl import load_workbook
+    
+    # Load workbook
+    wb = load_workbook(extraction_file_path)
+    ws = wb.active
+    
+    # Find column indices
+    col_indices = {}
+    for col in range(1, ws.max_column + 1):
+        header = ws.cell(row=1, column=col).value
+        if header == "No Centris":
+            col_indices['centris'] = col
+        elif header == "details-page":
+            col_indices['details'] = col
+        elif header == "score_total":
+            col_indices['total'] = col
+        elif header == "score_non_negociables":
+            col_indices['non_neg'] = col
+        elif header == "score_souhaits_importants":
+            col_indices['important'] = col
+        elif header == "score_souhaits_secondaires":
+            col_indices['secondaire'] = col
+    
+    # Process each row
+    for row in range(2, ws.max_row + 1):
+        centris_no = ws.cell(row=row, column=col_indices['centris']).value
+        details_cell = ws.cell(row=row, column=col_indices['details'])
+        
+        if not centris_no or not details_cell.hyperlink:
+            continue
+            
+        property_url = details_cell.hyperlink.target
+        print(f"Processing {centris_no}: {property_url}")
+        
+        try:
+            total, non_neg, important, secondaire = calculate_matching_score(
+                ponderation_sheet_path=ponderation_sheet_path,
+                centris_url=property_url,
+                aws_region=aws_region
+            )
+            
+            # Update scores in Excel
+            ws.cell(row=row, column=col_indices['total'], value=total)
+            ws.cell(row=row, column=col_indices['non_neg'], value=non_neg)
+            ws.cell(row=row, column=col_indices['important'], value=important)
+            ws.cell(row=row, column=col_indices['secondaire'], value=secondaire)
+            
+            print(f"✅ {centris_no}: {total}/100 total")
+            
+        except Exception as e:
+            print(f"❌ Error processing {centris_no}: {str(e)}")
+    
+    # Save workbook
+    wb.save(extraction_file_path)
+    print(f"✅ All scores updated in {extraction_file_path}")
+
+
 # Exemple d'utilisation
 if __name__ == "__main__":
-    # URLs d'exemple
     PONDERATION_SHEET_PATH = os.getenv('PONDERATION_SHEET_PATH')
-    CENTRIS_URL = os.getenv('CENTRIS_URL')
     EXTRACTION_CENTRIS = os.getenv('EXTRACTION_CENTRIS')
     
-    if not PONDERATION_SHEET_PATH or not CENTRIS_URL:
-        print("❌ Erreur: Les variables d'environnement PONDERATION_SHEET_PATH et CENTRIS_URL doivent être définies dans le fichier .env")
+    if not PONDERATION_SHEET_PATH or not EXTRACTION_CENTRIS:
+        print("❌ Erreur: Les variables d'environnement PONDERATION_SHEET_PATH et EXTRACTION_CENTRIS doivent être définies dans le fichier .env")
         exit(1)
     
     try:
-        total, non_neg, important, secondaire = calculate_matching_score(
+        process_all_properties_from_excel(
             ponderation_sheet_path=PONDERATION_SHEET_PATH,
-            centris_url=CENTRIS_URL,
+            extraction_file_path=EXTRACTION_CENTRIS,
             aws_region='us-east-1'
         )
-        
-        print(f"score_total: {total}/100, score_non_negociables: {non_neg}/65, score_souhaits_importants: {important}/25, score_souhaits_secondaires: {secondaire}/10")
-        
-        # Update Excel file with scores
-        if EXTRACTION_CENTRIS:
-            from openpyxl import load_workbook
-            import re
-            
-            # Extract centris number from URL
-            centris_match = re.search(r'mls(\d+)', CENTRIS_URL)
-            if centris_match:
-                centris_number = centris_match.group(1)
-                
-                wb = load_workbook(EXTRACTION_CENTRIS)
-                ws = wb.active
-                
-                # Find columns
-                score_cols = {}
-                for col in range(1, ws.max_column + 1):
-                    header = ws.cell(row=1, column=col).value
-                    if header == "score_total":
-                        score_cols['total'] = col
-                    elif header == "score_non_negociables":
-                        score_cols['non_neg'] = col
-                    elif header == "score_souhaits_importants":
-                        score_cols['important'] = col
-                    elif header == "score_souhaits_secondaires":
-                        score_cols['secondaire'] = col
-                
-                # Find row with matching centris number
-                for row in range(2, ws.max_row + 1):
-                    cell_value = str(ws.cell(row=row, column=1).value or "")
-                    if centris_number in cell_value:
-                        # Update scores
-                        if 'total' in score_cols:
-                            ws.cell(row=row, column=score_cols['total'], value=total)
-                        if 'non_neg' in score_cols:
-                            ws.cell(row=row, column=score_cols['non_neg'], value=non_neg)
-                        if 'important' in score_cols:
-                            ws.cell(row=row, column=score_cols['important'], value=important)
-                        if 'secondaire' in score_cols:
-                            ws.cell(row=row, column=score_cols['secondaire'], value=secondaire)
-                        
-                        wb.save(EXTRACTION_CENTRIS)
-                        print(f"✅ Scores mis à jour dans {EXTRACTION_CENTRIS} pour le Centris {centris_number}")
-                        break
-                else:
-                    print(f"⚠️ Centris {centris_number} non trouvé dans le fichier Excel")
-        
     except Exception as e:
         print(f"❌ Erreur: {str(e)}")
