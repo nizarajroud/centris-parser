@@ -7,8 +7,26 @@ from typing import Dict, Tuple
 import re
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
+
+# Setup logging
+LOG_TO_FILE = os.getenv('LOG_MATCHSCORE_ON_FILE', '0') == '1'
+log_file = None
+if LOG_TO_FILE:
+    os.makedirs('logs', exist_ok=True)
+    timestamp = datetime.now().strftime("%d-%M-%S")
+    log_file = open(f'logs/getMatchScore-{timestamp}.log', 'w', encoding='utf-8')
+
+def log_print(message):
+    """Print to console or log file based on LOG_MATCHSCORE_ON_FILE setting"""
+    if LOG_TO_FILE:
+        if log_file:
+            log_file.write(message + '\n')
+            log_file.flush()
+    else:
+        print(message)
 
 
 def get_google_sheet_as_dataframe(sheet_url: str) -> pd.DataFrame:
@@ -143,8 +161,8 @@ def calculate_matching_score(
     important_details = []
     secondaire_details = []
     
-    print(f"\ncentris no {centris_number}:")
-    print(f"Total criteria rows to process: {len(criteria_df)}")
+    log_print(f"\ncentris no {centris_number}:")
+    log_print(f"Total criteria rows to process: {len(criteria_df)}")
     
     # Group criteria by name to handle multiple ranges
     processed_criteria = set()
@@ -178,15 +196,15 @@ def calculate_matching_score(
         if current_category and current_category != categorie:
             # Log the previous category total
             if current_category == 'Non-négociables':
-                print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
+                log_print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
             elif current_category == 'Souhaits importants':
-                print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
+                log_print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
             elif current_category == 'Souhaits secondaires':
-                print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+                log_print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
         
         current_category = categorie
         
-        print(f"  Processing: {critere} (Source: {origine}, Category: {categorie})")
+        log_print(f"  Processing: {critere} (Source: {origine}, Category: {categorie})")
         criteria_count_by_category[categorie] += 1
         
         # Get all ranges for this criteria
@@ -208,7 +226,7 @@ def calculate_matching_score(
             elif critere2 and not pd.isna(critere2) and critere2 != current_critere:
                 break
         
-        print(f"    Found {len(all_ranges)} ranges: {all_ranges}")
+        log_print(f"    Found {len(all_ranges)} ranges: {all_ranges}")
         
         awarded_points = 0.0
         
@@ -230,7 +248,7 @@ def calculate_matching_score(
                 for valeur_range, poids_range in all_ranges:
                     valeur_str = str(valeur_range).strip()
                     
-                    print(f"      Comparing '{property_value}' vs '{valeur_range}'")
+                    log_print(f"      Comparing '{property_value}' vs '{valeur_range}'")
                     
                     # Check for numeric range
                     if '-' in valeur_str and any(char.isdigit() for char in valeur_str):
@@ -243,7 +261,7 @@ def calculate_matching_score(
                                 
                                 if min_val <= prop_num <= max_val:
                                     awarded_points = float(poids_range)
-                                    print(f"    {critere} (Excel): {property_value} in range {valeur_range} -> {awarded_points} pts")
+                                    log_print(f"    {critere} (Excel): {property_value} in range {valeur_range} -> {awarded_points} pts")
                                     break
                         except:
                             pass
@@ -251,11 +269,11 @@ def calculate_matching_score(
                     # Check for exact match
                     elif str(property_value).strip().lower() == valeur_str.lower():
                         awarded_points = float(poids_range)
-                        print(f"    {critere} (Excel): {property_value} matches {valeur_range} -> {awarded_points} pts")
+                        log_print(f"    {critere} (Excel): {property_value} matches {valeur_range} -> {awarded_points} pts")
                         break
                 
                 if awarded_points == 0:
-                    print(f"    {critere} (Excel): {property_value} -> No match found -> 0 pts")
+                    log_print(f"    {critere} (Excel): {property_value} -> No match found -> 0 pts")
             
         else:
             # HTML processing - use Claude for the first range only (simplified)
@@ -301,11 +319,11 @@ Réponds uniquement en JSON:
                     awarded_points = float(result.get('points', 0))
                     valeur_trouvee = result.get('valeur_trouvee', 'N/A')
                     
-                    print(f"    {critere} (HTML): {valeur_trouvee} -> {awarded_points} pts")
+                    log_print(f"    {critere} (HTML): {valeur_trouvee} -> {awarded_points} pts")
                     
                 except Exception as e:
                     awarded_points = 0.0
-                    print(f"    {critere} (HTML): Error -> 0 pts")
+                    log_print(f"    {critere} (HTML): Error -> 0 pts")
         
         # Add to appropriate category
         if categorie == 'Non-négociables':
@@ -323,18 +341,18 @@ Réponds uniquement en JSON:
     
     # Log the final category total
     if current_category == 'Non-négociables':
-        print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
+        log_print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
     elif current_category == 'Souhaits importants':
-        print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
+        log_print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
     elif current_category == 'Souhaits secondaires':
-        print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+        log_print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
     
     # Print calculation summary
-    print(f"  Criteria processed by category: {criteria_count_by_category}")
-    print(f"  Non-négociables: {' + '.join(non_neg_details)} = {score_non_negociables}")
-    print(f"  Souhaits importants: {' + '.join(important_details)} = {score_souhaits_importants}")
-    print(f"  Souhaits secondaires: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
-    print(f"  TOTAL: {total_score}")
+    log_print(f"  Criteria processed by category: {criteria_count_by_category}")
+    log_print(f"  Non-négociables: {' + '.join(non_neg_details)} = {score_non_negociables}")
+    log_print(f"  Souhaits importants: {' + '.join(important_details)} = {score_souhaits_importants}")
+    log_print(f"  Souhaits secondaires: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+    log_print(f"  TOTAL: {total_score}")
     
     return total_score, score_non_negociables, score_souhaits_importants, score_souhaits_secondaires
 
@@ -433,6 +451,9 @@ def process_all_properties_from_excel(
         property_url = details_cell.hyperlink.target
         print(f"Processing {centris_no}: {property_url}")
         
+        if LOG_TO_FILE:
+            print("in progress")
+        
         try:
             total, non_neg, important, secondaire = calculate_matching_score(
                 ponderation_sheet_path=ponderation_sheet_path,
@@ -460,6 +481,10 @@ def process_all_properties_from_excel(
     # Save workbook
     wb.save(extraction_file_path)
     print(f"✅ All scores updated in {extraction_file_path}")
+    
+    # Close log file if open
+    if LOG_TO_FILE and log_file:
+        log_file.close()
 
 
 # Exemple d'utilisation
