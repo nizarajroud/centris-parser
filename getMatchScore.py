@@ -38,175 +38,305 @@ def get_google_sheet_as_dataframe(sheet_url: str) -> pd.DataFrame:
         raise Exception(f"Erreur lors du chargement du Google Sheet: {str(e)}")
 
 
-def scrape_centris_property(centris_url: str) -> Dict:
+def scrape_centris_property(centris_url: str, centris_number: str, extraction_file_path: str, ponderation_sheet_path: str) -> Dict:
     """
-    Extrait les informations d'une propriété depuis Centris et les enrichit avec les données Excel.
+    Extrait les informations d'une propriété depuis Excel ou HTML selon la colonne Origine.
     
     Args:
-        centris_url: URL de la propriété sur Centris
+        centris_url: URL de la propriété
+        centris_number: Numéro Centris
+        extraction_file_path: Chemin vers le fichier Excel d'extraction
+        ponderation_sheet_path: Chemin vers le fichier de pondération
         
     Returns:
         Dictionnaire contenant les informations de la propriété
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    import pandas as pd
+    from openpyxl import load_workbook
+    
+    # Load ponderation criteria
+    criteria_df = get_google_sheet_as_dataframe(ponderation_sheet_path)
+    
+    # Load extraction file
+    wb = load_workbook(extraction_file_path)
+    ws = wb.active
+    
+    # Find columns
+    col_indices = {}
+    for col in range(1, ws.max_column + 1):
+        header = ws.cell(row=1, column=col).value
+        if header == "No Centris":
+            col_indices['centris'] = col
+        elif header == "Origine":
+            col_indices['origine'] = col
+    
+    # Find property row
+    property_row_data = {}
+    origine = "HTML"  # default
+    
+    for row in range(2, ws.max_row + 1):
+        if str(ws.cell(row=row, column=col_indices['centris']).value) == str(centris_number):
+            # Get all row data
+            for col in range(1, ws.max_column + 1):
+                header = ws.cell(row=1, column=col).value
+                value = ws.cell(row=row, column=col).value
+                if header:
+                    property_row_data[header] = value
+            
+            # Get origine if column exists
+            if 'origine' in col_indices:
+                origine = ws.cell(row=row, column=col_indices['origine']).value or "HTML"
+            break
+    
+    property_data = {
+        'url': centris_url,
+        'centris_number': centris_number,
+        'origine': origine,
+        'excel_data': property_row_data,
+        'criteria': criteria_df.to_string()
     }
     
-    # Extraire le numéro Centris de l'URL
-    centris_number = centris_url.split('/')[-1] if '/' in centris_url else centris_url
-    
-    try:
-        # 1. Scraper le HTML de Centris
-        response = requests.get(centris_url, headers=headers)
-        response.raise_for_status()
-        
-        property_data = {
-            'url': centris_url,
-            'centris_number': centris_number,
-            'html_content': response.text[:50000]  # Limiter pour éviter dépassement token
+    if origine == "HTML":
+        # Scrape HTML content
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         
-        # 2. Enrichir avec les données Excel
-        extraction_centris_path = os.getenv('EXTRACTION_CENTRIS')
-        if extraction_centris_path:
-            df = pd.read_excel(extraction_centris_path)
-            property_row = df[df.iloc[:, 0].astype(str).str.contains(centris_number, na=False, regex=False)]
-            
-            if not property_row.empty:
-                property_data['excel_data'] = property_row.iloc[0].to_dict()
-        
-        return property_data
-        
-    except Exception as e:
-        raise Exception(f"Erreur lors de l'extraction des données: {str(e)}")
+        try:
+            response = requests.get(centris_url, headers=headers)
+            response.raise_for_status()
+            property_data['html_content'] = response.text[:50000]
+        except Exception as e:
+            property_data['html_content'] = f"Error scraping: {str(e)}"
+    
+    return property_data
 
 
 def calculate_matching_score(
     ponderation_sheet_path: str, 
     centris_url: str,
+    centris_number: str,
+    extraction_file_path: str,
     aws_region: str = 'us-east-1'
 ) -> Tuple[float, float, float, float]:
     """
-    Calcule le score de correspondance entre une propriété Centris et les critères
-    définis dans un fichier Excel local.
-    
-    Args:
-        ponderation_sheet_path: Chemin vers le fichier Excel contenant les critères
-        centris_url: URL de la propriété sur Centris
-        aws_region: Région AWS pour Bedrock (défaut: us-east-1)
-        
-    Returns:
-        Tuple[float, float, float, float]: (score_total, score_non_negociables, score_souhaits_importants, score_souhaits_secondaires)
+    Calcule le score de correspondance entre une propriété et les critères.
     """
+    import pandas as pd
+    from openpyxl import load_workbook
     
-    # 1. Charger les critères depuis Google Sheet
+    # 1. Load criteria and property data
     criteria_df = get_google_sheet_as_dataframe(ponderation_sheet_path)
-    criteria_text = criteria_df.to_string()
+    property_data = scrape_centris_property(centris_url, centris_number, extraction_file_path, ponderation_sheet_path)
     
-    # 2. Scraper la propriété Centris
-    property_data = scrape_centris_property(centris_url)
+    # 2. Initialize Bedrock client
+    bedrock = boto3.client(service_name='bedrock-runtime', region_name=aws_region)
     
-    # 3. Initialiser le client Bedrock avec boto3
-    bedrock = boto3.client(
-        service_name='bedrock-runtime',
-        region_name=aws_region
-    )
+    # 3. Initialize scores
+    total_score = 0
+    score_non_negociables = 0
+    score_souhaits_importants = 0
+    score_souhaits_secondaires = 0
     
-    # 4. Construire le prompt pour Claude
-    prompt = f"""Tu es un expert en évaluation immobilière. Tu dois analyser une propriété et calculer un score de correspondance basé sur des critères de pondération précis.
-
-# CRITÈRES DE PONDÉRATION
-Voici le tableau des critères avec leurs poids respectifs:
-
-{criteria_text}
-
-# PROPRIÉTÉ À ÉVALUER
-URL: {property_data['url']}
-Numéro Centris: {property_data['centris_number']}
-
-Voici le contenu HTML de la page Centris (extrait):
-{property_data['html_content']}
-
-{f"Données Excel supplémentaires: {property_data['excel_data']}" if 'excel_data' in property_data else ""}
-
-# TÂCHE
-1. Extraire toutes les caractéristiques pertinentes de la propriété depuis le HTML
-2. Évaluer chaque critère du tableau de pondération
-3. Attribuer les points selon les valeurs observées
-4. Calculer le score total sur 100
-
-# FORMAT DE RÉPONSE
-Tu DOIS répondre UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après. Format exact:
-
-{{
-  "score_total": <nombre entre 0 et 100>,
-  "score_non_negociables": <score sur 65>,
-  "score_souhaits_importants": <score sur 25>,
-  "score_souhaits_secondaires": <score sur 10>,
-  "evaluation_detaillee": [
-    {{
-      "critere": "<nom du critère>",
-      "poids_max": <poids maximum>,
-      "points_obtenus": <points obtenus>,
-      "justification": "<explication courte>",
-      "valeur_observee": "<valeur trouvée dans l'annonce>"
-    }}
-  ],
-  "points_forts": ["<point fort 1>", "<point fort 2>", ...],
-  "points_faibles": ["<point faible 1>", "<point faible 2>", ...],
-  "informations_manquantes": ["<info manquante 1>", "<info manquante 2>", ...],
-  "recommandation": "<EXCELLENT|TRÈS BON|ACCEPTABLE|LIMITE|À REJETER>",
-  "conseil": "<conseil personnalisé basé sur l'analyse>"
-}}
-
-Réponds UNIQUEMENT avec le JSON, rien d'autre."""
-
-    # 5. Appeler Claude via Bedrock
-    try:
-        response = bedrock.invoke_model(
-            modelId="us.anthropic.claude-opus-4-5-20251101-v1:0",
-            contentType="application/json",
-            accept="application/json",
-            body=json.dumps({
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 4096,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "temperature": 0.7
-            })
-        )
-        
-        # Parse la réponse de Bedrock
-        response_body = json.loads(response['body'].read())
-        response_text = response_body['content'][0]['text']
-        
-    except Exception as e:
-        raise Exception(f"Erreur lors de l'appel à Bedrock: {str(e)}")
+    # Lists to track calculations
+    non_neg_details = []
+    important_details = []
+    secondaire_details = []
     
-    # 6. Parser la réponse JSON de Claude
-    try:
-        # Nettoyer la réponse pour extraire uniquement le JSON
-        response_text = response_text.strip()
+    print(f"\ncentris no {centris_number}:")
+    print(f"Total criteria rows to process: {len(criteria_df)}")
+    
+    # Group criteria by name to handle multiple ranges
+    processed_criteria = set()
+    current_category = None
+    criteria_count_by_category = {'Non-négociables': 0, 'Souhaits importants': 0, 'Souhaits secondaires': 0}
+    
+    for idx, criteria_row in criteria_df.iterrows():
+        # Map the actual column positions
+        rang = criteria_row.iloc[0] if len(criteria_row) > 0 else ''
+        origine = criteria_row.iloc[1] if len(criteria_row) > 1 else ''
+        critere = criteria_row.iloc[2] if len(criteria_row) > 2 else ''
+        poids = criteria_row.iloc[3] if len(criteria_row) > 3 else 0
+        valeur = criteria_row.iloc[4] if len(criteria_row) > 4 else ''
+        poids_effectif = criteria_row.iloc[5] if len(criteria_row) > 5 else 0
         
-        # Enlever les backticks markdown si présents
-        if response_text.startswith('```'):
-            response_text = response_text.split('```')[1]
-            if response_text.startswith('json'):
-                response_text = response_text[4:]
-            # Enlever le dernier ```
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
+        # Skip header rows and empty rows
+        if not critere or critere in ['Critère', 'Validation'] or pd.isna(critere):
+            continue
+        if critere in processed_criteria:
+            continue
+            
+        # Determine category based on row position
+        if idx <= 45:  # Non-négociables section
+            categorie = 'Non-négociables'
+        elif idx <= 80:  # Souhaits importants section  
+            categorie = 'Souhaits importants'
+        else:  # Souhaits secondaires section
+            categorie = 'Souhaits secondaires'
         
-        result = json.loads(response_text.strip())
+        # Check if we're transitioning to a new category
+        if current_category and current_category != categorie:
+            # Log the previous category total
+            if current_category == 'Non-négociables':
+                print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
+            elif current_category == 'Souhaits importants':
+                print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
+            elif current_category == 'Souhaits secondaires':
+                print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
         
-        return result['score_total'], result['score_non_negociables'], result['score_souhaits_importants'], result['score_souhaits_secondaires']
+        current_category = categorie
         
-    except json.JSONDecodeError as e:
-        raise Exception(f"Erreur lors du parsing JSON: {str(e)}\nRéponse reçue: {response_text[:500]}")
+        print(f"  Processing: {critere} (Source: {origine}, Category: {categorie})")
+        criteria_count_by_category[categorie] += 1
+        
+        # Get all ranges for this criteria
+        all_ranges = []
+        current_critere = critere
+        
+        # Start from current row and look for all related rows
+        for idx2 in range(idx, len(criteria_df)):
+            row2 = criteria_df.iloc[idx2]
+            critere2 = row2.iloc[2] if len(row2) > 2 else ''
+            valeur2 = row2.iloc[4] if len(row2) > 4 else ''
+            poids_effectif2 = row2.iloc[5] if len(row2) > 5 else 0
+            
+            # If we find the same criteria name or an empty criteria name with a value and weight
+            if (critere2 == current_critere) or (pd.isna(critere2) and valeur2 and not pd.isna(poids_effectif2) and poids_effectif2 != 0):
+                if valeur2 and not pd.isna(poids_effectif2) and poids_effectif2 != 0:
+                    all_ranges.append((str(valeur2).strip(), float(poids_effectif2)))
+            # Stop when we hit a new criteria (non-empty critere2 that's different)
+            elif critere2 and not pd.isna(critere2) and critere2 != current_critere:
+                break
+        
+        print(f"    Found {len(all_ranges)} ranges: {all_ranges}")
+        
+        awarded_points = 0.0
+        
+        # Get property value based on origine
+        if origine and str(origine).lower() == 'excel':
+            # Get from Excel columns
+            property_value = property_data['excel_data'].get(critere)
+            if property_value is None:
+                # Try variations
+                for key in property_data['excel_data'].keys():
+                    if critere.lower().replace(' ', '').replace('-', '') in key.lower().replace(' ', '').replace('-', ''):
+                        property_value = property_data['excel_data'][key]
+                        break
+            
+            # Check property value against all ranges
+            if property_value:
+                prop_val_str = str(property_value).strip().replace(' ', '').replace('$', '').replace(',', '')
+                
+                for valeur_range, poids_range in all_ranges:
+                    valeur_str = str(valeur_range).strip()
+                    
+                    print(f"      Comparing '{property_value}' vs '{valeur_range}'")
+                    
+                    # Check for numeric range
+                    if '-' in valeur_str and any(char.isdigit() for char in valeur_str):
+                        try:
+                            range_parts = valeur_str.replace('$', '').replace('pc', '').replace(' ', '').split('-')
+                            if len(range_parts) == 2:
+                                min_val = float(range_parts[0])
+                                max_val = float(range_parts[1])
+                                prop_num = float(''.join(filter(str.isdigit, prop_val_str)))
+                                
+                                if min_val <= prop_num <= max_val:
+                                    awarded_points = float(poids_range)
+                                    print(f"    {critere} (Excel): {property_value} in range {valeur_range} -> {awarded_points} pts")
+                                    break
+                        except:
+                            pass
+                    
+                    # Check for exact match
+                    elif str(property_value).strip().lower() == valeur_str.lower():
+                        awarded_points = float(poids_range)
+                        print(f"    {critere} (Excel): {property_value} matches {valeur_range} -> {awarded_points} pts")
+                        break
+                
+                if awarded_points == 0:
+                    print(f"    {critere} (Excel): {property_value} -> No match found -> 0 pts")
+            
+        else:
+            # HTML processing - use Claude for the first range only (simplified)
+            if all_ranges:
+                valeur_first = all_ranges[0][0]
+                poids_first = all_ranges[0][1]
+                
+                prompt = f"""Analyse cette page web pour le critère: {critere}
+
+CRITÈRE: {critere}
+VALEUR ATTENDUE: {valeur_first}
+POINTS: {poids_first}
+
+CONTENU HTML:
+{property_data.get('html_content', 'No HTML')[:1500]}
+
+Réponds uniquement en JSON:
+{{"correspond": true/false, "valeur_trouvee": "<valeur>", "points": <{poids_first} si correspond, 0 sinon>}}"""
+
+                try:
+                    response = bedrock.invoke_model(
+                        modelId="us.anthropic.claude-opus-4-5-20251101-v1:0",
+                        contentType="application/json",
+                        accept="application/json",
+                        body=json.dumps({
+                            "anthropic_version": "bedrock-2023-05-31",
+                            "max_tokens": 300,
+                            "messages": [{"role": "user", "content": prompt}],
+                            "temperature": 0.1
+                        })
+                    )
+                    
+                    response_body = json.loads(response['body'].read())
+                    response_text = response_body['content'][0]['text'].strip()
+                    
+                    if '```' in response_text:
+                        response_text = response_text.split('```')[1]
+                        if response_text.startswith('json'):
+                            response_text = response_text[4:]
+                        response_text = response_text.split('```')[0]
+                    
+                    result = json.loads(response_text.strip())
+                    awarded_points = float(result.get('points', 0))
+                    valeur_trouvee = result.get('valeur_trouvee', 'N/A')
+                    
+                    print(f"    {critere} (HTML): {valeur_trouvee} -> {awarded_points} pts")
+                    
+                except Exception as e:
+                    awarded_points = 0.0
+                    print(f"    {critere} (HTML): Error -> 0 pts")
+        
+        # Add to appropriate category
+        if categorie == 'Non-négociables':
+            score_non_negociables += awarded_points
+            non_neg_details.append(str(awarded_points))
+        elif categorie == 'Souhaits importants':
+            score_souhaits_importants += awarded_points
+            important_details.append(str(awarded_points))
+        elif categorie == 'Souhaits secondaires':
+            score_souhaits_secondaires += awarded_points
+            secondaire_details.append(str(awarded_points))
+        
+        total_score += awarded_points
+        processed_criteria.add(critere)
+    
+    # Log the final category total
+    if current_category == 'Non-négociables':
+        print(f"  Non-négociables category total: {' + '.join(non_neg_details)} = {score_non_negociables}")
+    elif current_category == 'Souhaits importants':
+        print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
+    elif current_category == 'Souhaits secondaires':
+        print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+    
+    # Print calculation summary
+    print(f"  Criteria processed by category: {criteria_count_by_category}")
+    print(f"  Non-négociables: {' + '.join(non_neg_details)} = {score_non_negociables}")
+    print(f"  Souhaits importants: {' + '.join(important_details)} = {score_souhaits_importants}")
+    print(f"  Souhaits secondaires: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+    print(f"  TOTAL: {total_score}")
+    
+    return total_score, score_non_negociables, score_souhaits_importants, score_souhaits_secondaires
 
 
 def display_evaluation_report(details: Dict) -> None:
@@ -307,6 +437,8 @@ def process_all_properties_from_excel(
             total, non_neg, important, secondaire = calculate_matching_score(
                 ponderation_sheet_path=ponderation_sheet_path,
                 centris_url=property_url,
+                centris_number=str(centris_no),
+                extraction_file_path=extraction_file_path,
                 aws_region=aws_region
             )
             
@@ -316,7 +448,11 @@ def process_all_properties_from_excel(
             ws.cell(row=row, column=col_indices['important'], value=important)
             ws.cell(row=row, column=col_indices['secondaire'], value=secondaire)
             
-            print(f"✅ {centris_no}: {total}/100 total")
+            # Force save after each update
+            wb.save(extraction_file_path)
+            
+            print(f"✅ {centris_no}: Total={total}, Non-neg={non_neg}, Important={important}, Secondaire={secondaire}")
+            print(f"   Saved to Excel: row {row}, columns {col_indices}")
             
         except Exception as e:
             print(f"❌ Error processing {centris_no}: {str(e)}")

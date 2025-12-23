@@ -286,6 +286,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         centris_no = str(row[0].value).strip()
                         if len(row) > 1 and row[1]:  # Cell with link in second column
                             manual_details_cells[centris_no] = row[1]
+                            print(f"Loaded manual-details: '{centris_no}' -> {row[1].value}")
                 print(f"Loaded {len(manual_details_cells)} cells from manual-details tab")
             else:
                 print("Warning: manual-details tab not found")
@@ -366,6 +367,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 elif field_name == "details-page" and value:
                     centris_no = fields.get("Centris No.", "")
                     cell = ws.cell(row=row, column=col)
+                    print(f"Looking for centris_no: '{centris_no}' in manual_details_cells")
                     if centris_no and centris_no in manual_details_cells:
                         # Copy the cell with its embedded link
                         source_cell = manual_details_cells[centris_no]
@@ -373,10 +375,10 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         if source_cell.hyperlink:
                             cell.hyperlink = source_cell.hyperlink
                             cell.style = "Hyperlink"
-                        print(f"Copied cell for {centris_no}: {source_cell.value}")
+                        print(f"✅ Copied cell for {centris_no}: {source_cell.value}")
                     else:
                         cell.value = value
-                        print(f"No cell found for {centris_no}")
+                        print(f"❌ No cell found for '{centris_no}' - Available keys: {list(manual_details_cells.keys())[:5]}")
                 else:
                     ws.cell(row=row, column=col, value=value)
         
