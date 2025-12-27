@@ -29,6 +29,123 @@ def log_print(message):
         print(message)
 
 
+def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1') -> float:
+    """
+    Get Souhaits Secondaires score from Amazon Bedrock agent.
+    
+    Args:
+        centris_num: Centris number
+        aws_region: AWS region for Bedrock agent
+        
+    Returns:
+        float: Score finale value
+    """
+    try:
+        bedrock_agent = boto3.client(
+            service_name='bedrock-agent-runtime',
+            region_name=aws_region
+        )
+        
+        agent_id = os.getenv('BEDROCK_AGENT_ID', 'HomeAgent')
+        agent_alias_id = os.getenv('BEDROCK_AGENT_ALIAS_ID', 'HomeAgent')
+        knowledge_base_id = os.getenv('KNOWLEDGE_BASE_ID', 'RMS7YSFH2W')
+        prompt = f"Score total pour categorie SOUHAITS SECONDAIRES pour centris num {centris_num}"
+        
+        log_print(f"Calling Bedrock agent {agent_id} (alias: {agent_alias_id}) for centris {centris_num}")
+        log_print(f"Prompt: {prompt}")
+        
+        response = bedrock_agent.invoke_agent(
+            agentId=agent_id,
+            agentAliasId=agent_alias_id,
+            sessionId=f'session-{centris_num}',
+            inputText=prompt,
+            sessionState={
+                'knowledgeBaseConfigurations': [{
+                    'knowledgeBaseId': knowledge_base_id,
+                    'retrievalConfiguration': {
+                        'vectorSearchConfiguration': {
+                            'filter': {
+                                'equals': {
+                                    'key': 'centris_number',
+                                    'value': centris_num
+                                }
+                            }
+                        }
+                    }
+                }]
+            }
+        )
+        
+        # Extract response text and references
+        response_text = ""
+        references = []
+        
+        for event in response['completion']:
+            if 'chunk' in event:
+                chunk = event['chunk']
+                if 'bytes' in chunk:
+                    response_text += chunk['bytes'].decode('utf-8')
+                # Check for citations in chunk
+                if 'attribution' in chunk and 'citations' in chunk['attribution']:
+                    for citation in chunk['attribution']['citations']:
+                        if 'retrievedReferences' in citation:
+                            for ref in citation['retrievedReferences']:
+                                if 'location' in ref:
+                                    if 's3Location' in ref['location']:
+                                        uri = ref['location']['s3Location'].get('uri', 'Unknown URI')
+                                        references.append(uri)
+                                    elif 'webLocation' in ref['location']:
+                                        uri = ref['location']['webLocation'].get('url', 'Unknown URL')
+                                        references.append(uri)
+            elif 'trace' in event:
+                trace = event['trace']
+                if 'orchestrationTrace' in trace:
+                    orch_trace = trace['orchestrationTrace']
+                    if 'observation' in orch_trace:
+                        observation = orch_trace['observation']
+                        if 'knowledgeBaseLookupOutput' in observation:
+                            kb_output = observation['knowledgeBaseLookupOutput']
+                            if 'retrievedReferences' in kb_output:
+                                for ref in kb_output['retrievedReferences']:
+                                    if 'location' in ref:
+                                        if 's3Location' in ref['location']:
+                                            uri = ref['location']['s3Location'].get('uri', 'Unknown URI')
+                                            references.append(uri)
+                                        elif 'webLocation' in ref['location']:
+                                            uri = ref['location']['webLocation'].get('url', 'Unknown URL')
+                                            references.append(uri)
+        
+        log_print(f"Agent response: {response_text}")
+        
+        if references:
+            log_print(f"Reference URLs used ({len(references)} total):")
+            for i, ref in enumerate(references, 1):
+                log_print(f"  [{i}] {ref}")
+        else:
+            log_print("No reference URLs found in response")
+        
+        # Extract score finale value from format: "SCORE TOTAL - SOUHAITS SECONDAIRES: 8.5 / 15 points"
+        import re
+        score_match = re.search(r'SCORE TOTAL - SOUHAITS SECONDAIRES:\s*(\d+\.?\d*)\s*/\s*\d+', response_text, re.IGNORECASE)
+        if score_match:
+            score = float(score_match.group(1))
+            log_print(f"Extracted score: {score}")
+            return score
+        else:
+            log_print("No score found in response")
+            return 0.0
+            
+    except Exception as e:
+        error_msg = str(e)
+        log_print(f"Error calling Bedrock agent for {centris_num}: {error_msg}")
+        log_print(f"Agent ID: {agent_id}")
+        log_print(f"Agent Alias ID: {agent_alias_id}")
+        log_print(f"Knowledge Base ID: {knowledge_base_id}")
+        log_print(f"AWS Region: {aws_region}")
+        print(f"Error calling Bedrock agent for {centris_num}: {error_msg}")
+        return 0.0
+
+
 def get_google_sheet_as_dataframe(sheet_url: str) -> pd.DataFrame:
     """
     Convertit un Google Sheet public en DataFrame pandas.
@@ -178,9 +295,10 @@ def calculate_matching_score(
         valeur = criteria_row.iloc[4] if len(criteria_row) > 4 else ''
         poids_effectif = criteria_row.iloc[5] if len(criteria_row) > 5 else 0
         
-        # Skip header rows and empty rows
-        if not critere or critere in ['Critère', 'Validation'] or pd.isna(critere):
+        # Skip invalid criteria (nan source, decision recommendations, etc.)
+        if pd.isna(origine) or not critere or critere in ['Critère', 'Validation', 'Décision recommandée'] or any(emoji in critere for emoji in ['🟢', '🟡', '🟠', '🔴', '⛔', '✓']):
             continue
+            
         if critere in processed_criteria:
             continue
             
@@ -191,6 +309,10 @@ def calculate_matching_score(
             categorie = 'Souhaits importants'
         else:  # Souhaits secondaires section
             categorie = 'Souhaits secondaires'
+        
+        # Skip HTML criteria completely
+        if origine and str(origine).lower() == 'html':
+            continue
         
         # Check if we're transitioning to a new category
         if current_category and current_category != categorie:
@@ -274,56 +396,6 @@ def calculate_matching_score(
                 
                 if awarded_points == 0:
                     log_print(f"    {critere} (Excel): {property_value} -> No match found -> 0 pts")
-            
-        else:
-            # HTML processing - use Claude for the first range only (simplified)
-            if all_ranges:
-                valeur_first = all_ranges[0][0]
-                poids_first = all_ranges[0][1]
-                
-                prompt = f"""Analyse cette page web pour le critère: {critere}
-
-CRITÈRE: {critere}
-VALEUR ATTENDUE: {valeur_first}
-POINTS: {poids_first}
-
-CONTENU HTML:
-{property_data.get('html_content', 'No HTML')[:1500]}
-
-Réponds uniquement en JSON:
-{{"correspond": true/false, "valeur_trouvee": "<valeur>", "points": <{poids_first} si correspond, 0 sinon>}}"""
-
-                try:
-                    response = bedrock.invoke_model(
-                        modelId="us.anthropic.claude-opus-4-5-20251101-v1:0",
-                        contentType="application/json",
-                        accept="application/json",
-                        body=json.dumps({
-                            "anthropic_version": "bedrock-2023-05-31",
-                            "max_tokens": 300,
-                            "messages": [{"role": "user", "content": prompt}],
-                            "temperature": 0.1
-                        })
-                    )
-                    
-                    response_body = json.loads(response['body'].read())
-                    response_text = response_body['content'][0]['text'].strip()
-                    
-                    if '```' in response_text:
-                        response_text = response_text.split('```')[1]
-                        if response_text.startswith('json'):
-                            response_text = response_text[4:]
-                        response_text = response_text.split('```')[0]
-                    
-                    result = json.loads(response_text.strip())
-                    awarded_points = float(result.get('points', 0))
-                    valeur_trouvee = result.get('valeur_trouvee', 'N/A')
-                    
-                    log_print(f"    {critere} (HTML): {valeur_trouvee} -> {awarded_points} pts")
-                    
-                except Exception as e:
-                    awarded_points = 0.0
-                    log_print(f"    {critere} (HTML): Error -> 0 pts")
         
         # Add to appropriate category
         if categorie == 'Non-négociables':
@@ -346,6 +418,9 @@ Réponds uniquement en JSON:
         log_print(f"  Souhaits importants category total: {' + '.join(important_details)} = {score_souhaits_importants}")
     elif current_category == 'Souhaits secondaires':
         log_print(f"  Souhaits secondaires category total: {' + '.join(secondaire_details)} = {score_souhaits_secondaires}")
+    
+    # Add special log for Souhaits secondaires processing via Bedrock agent
+    log_print(f"  Processing Souhaits secondaires via Bedrock agent...")
     
     # Print calculation summary
     log_print(f"  Criteria processed by category: {criteria_count_by_category}")
@@ -372,8 +447,8 @@ def display_evaluation_report(details: Dict) -> None:
     
     print("\n📈 RÉPARTITION DES SCORES:")
     print(f"  • Non-négociables: {details['score_non_negociables']}/65 pts")
-    print(f"  • Souhaits importants: {details['score_souhaits_importants']}/25 pts")
-    print(f"  • Souhaits secondaires: {details['score_souhaits_secondaires']}/10 pts")
+    print(f"  • Souhaits importants: {details['score_souhaits_importants']}/20 pts")
+    print(f"  • Souhaits secondaires: {details['score_souhaits_secondaires']}/15 pts")
     
     print("\n✅ POINTS FORTS:")
     for i, point in enumerate(details['points_forts'], 1):
@@ -463,16 +538,22 @@ def process_all_properties_from_excel(
                 aws_region=aws_region
             )
             
+            # Get Souhaits Secondaires score from Bedrock agent
+            secondaire_from_agent = getSouhaitSecondaireScore(str(centris_no), 'ca-central-1')
+            
+            # Calculate total score including all categories
+            total_with_agent = total + secondaire_from_agent
+            
             # Update scores in Excel
-            ws.cell(row=row, column=col_indices['total'], value=total)
+            ws.cell(row=row, column=col_indices['total'], value=total_with_agent)
             ws.cell(row=row, column=col_indices['non_neg'], value=non_neg)
             ws.cell(row=row, column=col_indices['important'], value=important)
-            ws.cell(row=row, column=col_indices['secondaire'], value=secondaire)
+            ws.cell(row=row, column=col_indices['secondaire'], value=secondaire_from_agent)
             
             # Force save after each update
             wb.save(extraction_file_path)
             
-            print(f"✅ {centris_no}: Total={total}, Non-neg={non_neg}, Important={important}, Secondaire={secondaire}")
+            print(f"✅ {centris_no}: Total={total_with_agent} (Non-neg={non_neg} + Important={important} + Secondaire={secondaire_from_agent})")
             print(f"   Saved to Excel: row {row}, columns {col_indices}")
             
         except Exception as e:
