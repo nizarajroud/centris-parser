@@ -65,8 +65,8 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
                     'retrievalConfiguration': {
                         'vectorSearchConfiguration': {
                             'filter': {
-                                'equals': {
-                                    'key': 'centris_number',
+                                'stringContains': {
+                                    'key': 'x-amz-bedrock-kb-source-uri',
                                     'value': centris_num
                                 }
                             }
@@ -78,7 +78,7 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
         
         # Extract response text and references
         response_text = ""
-        references = []
+        all_references = []
         
         for event in response['completion']:
             if 'chunk' in event:
@@ -93,10 +93,10 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
                                 if 'location' in ref:
                                     if 's3Location' in ref['location']:
                                         uri = ref['location']['s3Location'].get('uri', 'Unknown URI')
-                                        references.append(uri)
+                                        all_references.append(uri)
                                     elif 'webLocation' in ref['location']:
                                         uri = ref['location']['webLocation'].get('url', 'Unknown URL')
-                                        references.append(uri)
+                                        all_references.append(uri)
             elif 'trace' in event:
                 trace = event['trace']
                 if 'orchestrationTrace' in trace:
@@ -110,16 +110,16 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
                                     if 'location' in ref:
                                         if 's3Location' in ref['location']:
                                             uri = ref['location']['s3Location'].get('uri', 'Unknown URI')
-                                            references.append(uri)
+                                            all_references.append(uri)
                                         elif 'webLocation' in ref['location']:
                                             uri = ref['location']['webLocation'].get('url', 'Unknown URL')
-                                            references.append(uri)
+                                            all_references.append(uri)
         
         log_print(f"Agent response: {response_text}")
         
-        if references:
-            log_print(f"Reference URLs used ({len(references)} total):")
-            for i, ref in enumerate(references, 1):
+        if all_references:
+            log_print(f"Reference URLs used ({len(all_references)} total):")
+            for i, ref in enumerate(all_references, 1):
                 log_print(f"  [{i}] {ref}")
         else:
             log_print("No reference URLs found in response")
@@ -133,6 +133,7 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
             return score
         else:
             log_print("No score found in response")
+            log_print(f"Full response text: {response_text}")
             return 0.0
             
     except Exception as e:
@@ -539,7 +540,9 @@ def process_all_properties_from_excel(
             )
             
             # Get Souhaits Secondaires score from Bedrock agent
+            log_print(f"Getting Souhaits Secondaires score for {centris_no}...")
             secondaire_from_agent = getSouhaitSecondaireScore(str(centris_no), 'ca-central-1')
+            log_print(f"Received score from agent: {secondaire_from_agent}")
             
             # Calculate total score including all categories
             total_with_agent = total + secondaire_from_agent
@@ -550,8 +553,11 @@ def process_all_properties_from_excel(
             ws.cell(row=row, column=col_indices['important'], value=important)
             ws.cell(row=row, column=col_indices['secondaire'], value=secondaire_from_agent)
             
+            log_print(f"Updated Excel - Secondaire column with value: {secondaire_from_agent}")
+            
             # Force save after each update
             wb.save(extraction_file_path)
+            log_print(f"Saved Excel file")
             
             print(f"✅ {centris_no}: Total={total_with_agent} (Non-neg={non_neg} + Important={important} + Secondaire={secondaire_from_agent})")
             print(f"   Saved to Excel: row {row}, columns {col_indices}")
