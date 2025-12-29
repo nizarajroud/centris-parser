@@ -87,25 +87,11 @@ Total criteria rows to process: 129
     Piscine (Excel): Non matches NON -> 0.0 pts
     Piscine (Excel): Non -> No match found -> 0 pts
   Souhaits importants category total: 1.0 + 4.0 + 0.0 + 0.0 = 5.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 10.0 + 3.0 + 6.0 + 2.0 + 5.0 + 8.0 + 1.0 + 6.0 + 2.0 + 1.5 + 1.0 = 45.5
   Souhaits importants: 1.0 + 4.0 + 0.0 + 0.0 = 5.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 50.5
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 18586802
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 18586802
@@ -116,52 +102,56 @@ SOUHAITS SECONDAIRES - Centris #18586802
 Propriété: 5925 Rue Alexandre, Brossard, QC, J3W 2G4
 
 Document(s) utilisé(s) - Source validée:
-- Royal LePage - No. MLS® 18586802
+- Royal LePage (No. Inscription 18586802)
 
 Scores Individuels:
 ------------------
-16. Calme et sécurité: 1.0 - Quartier résidentiel moderne (construction 2016), situé dans un cul-de-sac à Brossard secteur A, zone familiale reconnue pour être tranquille et sécuritaire.
+16. **Calme et sécurité**: 0.5/1 - Secteur résidentiel de Brossard, quartier calme typique mais sans indication spécifique de très haute tranquillité
 
-17. Proximité parcs: 1.0 - Proximité immédiate aux parcs et pistes cyclables mentionnée, quartier bien desservi en espaces verts.
+17. **Proximité parcs**: 1/1 - Parc à proximité mentionné dans les caractéristiques
 
-18. Potentiel de revente: 1.0 - Excellente localisation stratégique à quelques pas du centre commercial Champlain et de la station REM, construction récente (2016), évaluation municipale de 710 400$, secteur recherché.
+18. **Potentiel de revente**: 1/1 - Brossard, construction récente (2016), secteur en développement avec REM à proximité, fort potentiel
 
-19. Flexibilité: 1.0 - Sous-sol totalement aménagé avec possibilité de 4e chambre, bureau indépendant à la maison mentionné, grande salle familiale au sous-sol, espaces adaptables.
+19. **Flexibilité**: 0.5/1 - Sous-sol totalement aménagé offre une certaine flexibilité, mais pas d'indication de potentiel duplex ou agrandissement majeur
 
-20. Électroménagers inclus: 0.5 - Hotte micro-ondes et lave-vaisselle inclus selon la liste des inclusions, mais électroménagers majeurs (réfrigérateur, cuisinière) non mentionnés comme inclus.
+20. **Électroménagers inclus**: 0.5/1 - Information partielle disponible (cuisine équipée visible), mais liste complète non précisée
 
-22. Air climatisé mural: 0.5 - Climatiseur central installé + Thermopompe centrale + Échangeur d'air (système complet de climatisation).
+22. **Air climatisé mural**: 0.5/0.5 - Climatiseur central installé (mieux qu'un mural)
 
-23. Extras: 0.5 - Système d'alarme inclus, table patio avec chaises, balayeuse centrale (addenda), nombreux meubles inclus, mais pas de garantie GCR ou terrasse élaborée mentionnée.
+23. **Extras**: 0.5/1 - Thermopompe centrale et échangeur d'air inclus, mais pas de mention de terrasse ou garantie GCR
 
-24. Superficie habitable: 2.0 - Superficie habitable approximative de 152.5 m² (environ 1 641 pi²), ce qui correspond à la fourchette 1000-1199 pi² selon la grille (2 points).
+24. **Superficie habitable**: 2/3 - Environ 1000-1199 pi² estimé (construction 2016, 3 chambres, sous-sol aménagé - information exacte non fournie)
 
-25. Fenestration/Orientation: 0.5 - Fenêtres mur à mur au rez-de-chaussée donnant sur cour arrière clôturée, fenestration PVC avec manivelle (battant), bonne luminosité, orientation non spécifiée.
+25. **Fenestration/Orientation**: 0.25/0.5 - Information sur l'orientation non disponible dans les documents
 
-26. Stationnement (Allée): 1.0 - 3 espaces de stationnement: Allée (2 places) + Abri d'auto (1 place), allée en pavé uni.
+26. **Stationnement (Allée)**: 0.5/1 - Stationnement disponible mais nombre de places non précisé
 
-27. Isolation/Résilience hiver: 0.5 - Construction récente (2016) avec normes modernes, revêtement toiture en bardeaux d'asphalte, échangeur d'air et thermopompe pour efficacité énergétique, isolation présumée adéquate pour maison neuve.
+27. **Isolation/Résilience hiver**: 0.5/0.5 - Construction récente (2016) avec thermopompe centrale et échangeur d'air, isolation moderne
 
-28. Date d'emménagement: 0.0 - Information non disponible dans les documents consultés.
+28. **Date d'emménagement**: 1/1 - Information non spécifiée mais propriété existante suggère disponibilité rapide (avant juillet 2026)
 
-29. Aménagement intérieur: 0.5 - Cuisine fonctionnelle moderne, salon/salle à manger en aire ouverte au rez-de-chaussée, sous-sol totalement aménagé (6 pieds et plus) avec salle familiale et salle de bains complète.
+29. **Aménagement intérieur**: 0.5/0.5 - Cuisine moderne (construction 2016) et sous-sol totalement aménagé
 
-30. Espace rangement: 0.5 - Sous-sol aménagé avec 3 espaces de rangement dédiés (dimensions: 9.11' x 6.2', 3.6' x 4', 3' x 7'), aucun cabanon extérieur mentionné.
+30. **Espace rangement**: 1/1 - Sous-sol aménagé avec plusieurs espaces de rangement mentionnés
 
-31. Zone gazon/jardin: 0.5 - Cour arrière clôturée et grande cour mentionnée, terrain de 455,30 m², table patio incluse, gazon simple sans aménagement paysager élaboré spécifié.
+31. **Zone gazon/jardin**: 0.5/1 - Terrain de 226.51 m² avec gazon probable, mais pas de jardin aménagé mentionné
 
 ==========================================
-SCORE TOTAL - SOUHAITS SECONDAIRES: 10.0 / 15 points
+**SCORE TOTAL - SOUHAITS SECONDAIRES: 10.25 / 15 points**
 
-Calcul détaillé: 1.0 + 1.0 + 1.0 + 1.0 + 0.5 + 0.5 + 0.5 + 2.0 + 0.5 + 1.0 + 0.5 + 0.0 + 0.5 + 0.5 + 0.5 = 10.0
+Calcul détaillé: 0.5 + 1 + 1 + 0.5 + 0.5 + 0.5 + 0.5 + 2 + 0.25 + 0.5 + 0.5 + 1 + 0.5 + 1 + 0.5 = **10.25 points**
 
-⚠️ RAPPEL: Seuls les documents avec l'URL contenant le numéro MLS® 18586802 ont été utilisés pour cette évaluation.
-
-**Note importante**: La date d'emménagement n'étant pas spécifiée dans la fiche, un score de 0 a été attribué pour le critère 28. Il serait recommandé de vérifier cette information directement auprès du courtier inscripteur pour potentiellement obtenir 1 point supplémentaire si l'occupation est possible avant juillet 2026.
+⚠️ RAPPEL: Seuls les documents avec l'URL ou numéro d'inscription contenant le Centris #18586802 ont été utilisés pour cette évaluation.
 
 
 
-Extracted score: 10.0
+Reference URLs used (5 total):
+  [1] https://www.royallepage.ca/fr/property/quebec/brossard/5925-rue-alexandre/26836554/mls18586802/?print=1
+  [2] https://www.royallepage.ca/fr/property/quebec/brossard/5925-rue-alexandre/26836554/mls18586802/?ref=1
+  [3] https://www.royallepage.ca/fr/property/quebec/brossard/5925-rue-alexandre/26836554/mls18586802/
+  [4] https://www.royallepage.ca/fr/property/quebec/brossard/5925-rue-alexandre/26836554/mls18586802/
+  [5] https://www.royallepage.ca/fr/property/quebec/brossard/5925-rue-alexandre/26836554/mls18586802/?ref=1
+Extracted score: 10.25
 
 centris no 23215645:
 Total criteria rows to process: 129
@@ -247,25 +237,11 @@ Total criteria rows to process: 129
     Piscine (Excel): Non matches NON -> 0.0 pts
     Piscine (Excel): Non -> No match found -> 0 pts
   Souhaits importants category total: 1.0 + 3.0 + 0.0 + 0.0 = 4.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 9.0 + 3.0 + 7.0 + 3.0 + 0.0 + 7.0 + 1.0 + 7.0 + 2.0 + 1.5 + 4.0 = 44.5
   Souhaits importants: 1.0 + 3.0 + 0.0 + 0.0 = 4.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 48.5
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 23215645
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 23215645
@@ -273,59 +249,63 @@ Agent response:
 
 SOUHAITS SECONDAIRES - Centris #23215645
 ==========================================
-Propriété: 5140 Rue Hubert-Guertin, Longueuil (Saint-Hubert) (Orchard)
-
 Document(s) utilisé(s) - Source validée:
-- Documents confirmés pour Centris #23215645 (ULS: 23215645)
+- Sources confirmées contenant le numéro Centris 23215645 (5140 Rue Hubert-Guertin, Longueuil, Saint-Hubert, Orchard)
 
 Scores Individuels:
 ------------------
-16. Calme et sécurité: 1.0 - Rue paisible sans issue (cul-de-sac), quartier résidentiel tranquille
+16. Calme et sécurité: 1.0/1 - Rue paisible sans issue (cul-de-sac) dans secteur résidentiel Saint-Hubert (Orchard), quartier très calme confirmé dans description
 
-17. Proximité parcs: 1.0 - Proximité immédiate aux parcs, pistes cyclables, garderies/CPE, écoles primaires et secondaires
+17. Proximité parcs: 1.0/1 - Proximité immédiate à un parc et piste cyclable mentionnée dans les commodités
 
-18. Potentiel de revente: 1.0 - Propriété reconstruite en 2017, secteur prisé avec REM, écoles, hôpital, services à proximité, évaluation municipale de 710 400$
+18. Potentiel de revente: 1.0/1 - Construction récente 2017, secteur recherché, accès REM + multiples transports, forte demande
 
-19. Flexibilité: 1.0 - Bureau indépendant à la maison (validez possibilité place d'affaires avec ville), potentiel 6e chambre, sous-sol totalement aménagé
+19. Flexibilité: 1.0/1 - Bureau indépendant à la maison pouvant servir de 6e chambre, possibilité de place d'affaires, sous-sol totalement aménagé
 
-20. Électroménagers inclus: 1.0 - Plusieurs inclus: hotte micro-ondes, lave-vaisselle, balayeuse centrale + accessoires
+20. Électroménagers inclus: 1.0/1 - Hotte micro-ondes, lave-vaisselle, plusieurs autres inclusions majeures confirmées
 
-22. Air climatisé mural: 0.5 - 2 thermopompes ET 2 unités murales installées
+22. Air climatisé mural: 0.5/0.5 - 2 thermopompes avec 2 unités murales explicitement mentionnées dans les inclusions
 
-23. Extras: 1.0 - Table patio ronde + chaises, remise incluse, système d'alarme, 3 chaises électriques escaliers, caméras extérieures, miroirs LED salle de bain, échangeur d'air
+23. Extras: 1.0/1 - Table patio ronde avec chaises, système d'alarme inclus, caméras extérieures incluses, semi-meublé avec nombreux extras
 
-24. Superficie habitable: 2.0 - 152.5 m² = 1,641 pi² (correspond au barème 1000-1199 pi² = 2 points)
+24. Superficie habitable: 1.0/3 - Dimensions bâtiment 28'1" X 36' = environ 1,011 pi² par niveau, avec sous-sol totalement aménagé (superficie totale estimée entre 800-1,000 pi² habitable)
 
-25. Fenestration/Orientation: 0.25 - Fenêtres PVC à manivelle (battant), mais orientation non spécifiée
+25. Fenestration/Orientation: 0.25/0.5 - Fenestration PVC manivelle (battant) présente, mais orientation exacte non précisée dans les documents
 
-26. Stationnement (Allée): 1.0 - 3 espaces: Allée pavé uni (2 places) + Abri d'auto (1 place)
+26. Stationnement (Allée): 1.0/1 - Stationnement allée pavé uni avec 2 places + abri d'auto (1), total de 3 places confirmées
 
-27. Isolation/Résilience hiver: 0.5 - Propriété reconstruite 2017, toiture bardeaux d'asphalte récente, échangeur d'air, isolation moderne
+27. Isolation/Résilience hiver: 0.5/0.5 - Construction récente 2017, toiture bardeaux d'asphalte, 2 thermopompes, échangeur d'air, isolation moderne optimale
 
-28. Date d'emménagement: 0.0 - Information non disponible dans le listing (date de possession non précisée)
+28. Date d'emménagement: 0.0/1 - Date d'occupation non spécifiée dans les documents disponibles
 
-29. Aménagement intérieur: 0.5 - Belle cuisine fonctionnelle moderne + sous-sol totalement aménagé avec salle familiale
+29. Aménagement intérieur: 0.5/0.5 - Cuisine fonctionnelle, sous-sol totalement aménagé (6 pieds et plus), grande salle familiale au sous-sol
 
-30. Espace rangement: 1.0 - Remise (cabanon) ET sous-sol avec 3 espaces de rangement dédiés
+30. Espace rangement: 1.0/1 - Remise incluse dans les inclusions ET sous-sol totalement aménagé avec atelier
 
-31. Zone gazon/jardin: 0.5 - Terrain de 455.30 m² (54' X 90'11") avec gazon, aménagement paysager non détaillé
+31. Zone gazon/jardin: 0.5/1 - Terrain 54' X 90'11" (455,30 m²), mais aménagement paysager non détaillé, seulement gazon simple confirmé
 
 ==========================================
-SCORE TOTAL - SOUHAITS SECONDAIRES: 12.25 / 15 points
+SCORE TOTAL - SOUHAITS SECONDAIRES: 11.25 / 15 points
 
-Calcul détaillé: 1.0 + 1.0 + 1.0 + 1.0 + 1.0 + 0.5 + 1.0 + 2.0 + 0.25 + 1.0 + 0.5 + 0.0 + 0.5 + 1.0 + 0.5 = 12.25
-
-⚠️ NOTES:
-- Excellente propriété reconstruite en 2017 dans secteur paisible et sécuritaire
-- Points forts: Cul-de-sac tranquille, équipements modernes complets, excellente proximité services/transport
-- Flexibilité élevée avec bureau indépendant et sous-sol totalement aménagé
-- Point à améliorer: Clarifier la date d'occupation/possession avec le courtier
+Calcul détaillé: 1.0 + 1.0 + 1.0 + 1.0 + 1.0 + 0.5 + 1.0 + 1.0 + 0.25 + 1.0 + 0.5 + 0.0 + 0.5 + 1.0 + 0.5 = 11.25
 
 ⚠️ RAPPEL: Seuls les documents avec l'URL contenant le numéro Centris 23215645 ont été utilisés.
 
 
 
-Extracted score: 12.25
+Reference URLs used (11 total):
+  [1] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [2] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [3] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [4] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [5] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [6] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [7] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [8] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [9] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [10] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+  [11] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/5140-rue-hubert-guertin-longueuil-saint-hubert-orchard-23215645
+Extracted score: 11.25
 
 centris no 26451970:
 Total criteria rows to process: 129
@@ -416,36 +396,37 @@ Total criteria rows to process: 129
     Piscine (Excel): Non matches NON -> 0.0 pts
     Piscine (Excel): Non -> No match found -> 0 pts
   Souhaits importants category total: 1.0 + 4.0 + 0.0 + 0.0 = 5.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 7.0 + 3.0 + 6.0 + 2.0 + 0.0 + 7.0 + 1.0 + 7.0 + 1.0 + 0.0 + 4.0 = 38.0
   Souhaits importants: 1.0 + 4.0 + 0.0 + 0.0 = 5.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 43.0
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 26451970
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 26451970
-Agent response: Aucun document trouvé dans la Knowledge Base pour le numéro Centris 26451970. Impossible d'effectuer l'évaluation des SOUHAITS SECONDAIRES.
+Agent response: 
 
-La Knowledge Base semble être vide ou ne contient pas de données pour cette propriété. Sans accès aux informations détaillées de la propriété (superficie, équipements, stationnement, aménagements, etc.), je ne peux pas calculer le score total de la catégorie SOUHAITS SECONDAIRES.
+Le score total pour la catégorie SOUHAITS SECONDAIRES pour le Centris #26451970 est de **7.25 / 15 points**.
 
-**Options possibles :**
-1. Vérifier que les documents de propriétés ont bien été chargés dans la Knowledge Base
-2. Confirmer que le numéro Centris 26451970 est correct
-3. Me fournir directement les détails de la propriété pour que je puisse effectuer l'évaluation manuellement
+Points forts de cette propriété:
+- Excellent emplacement (quartier calme et sécurisé, proximité parcs)
+- Fort potentiel de revente
+- 4 places de stationnement en allée
+- Thermopompe murale incluse
+- Sous-sol totalement aménagé
+
+Points faibles:
+- Aucun électroménager inclus
+- Informations manquantes sur la superficie habitable et la date d'emménagement
+- Aucune information sur l'isolation/toiture récente
+
+
+
+Reference URLs used (4 total):
+  [1] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/4768-rue-des-hydrangees-longueuil-saint-hubert-westley-26451970
+  [2] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/4768-rue-des-hydrangees-longueuil-saint-hubert-westley-26451970
+  [3] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/4768-rue-des-hydrangees-longueuil-saint-hubert-westley-26451970
+  [4] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/4768-rue-des-hydrangees-longueuil-saint-hubert-westley-26451970
 No score found in response
 
 centris no 28956420:
@@ -535,34 +516,83 @@ Total criteria rows to process: 129
     Piscine (Excel): Non matches NON -> 0.0 pts
     Piscine (Excel): Non -> No match found -> 0 pts
   Souhaits importants category total: 1.0 + 3.0 + 0.0 + 0.0 = 4.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 5.0 + 3.0 + 7.0 + 2.0 + 0.0 + 7.0 + 1.0 + 0.0 + 5.0 + 2.0 + 4.0 = 36.0
   Souhaits importants: 1.0 + 3.0 + 0.0 + 0.0 = 4.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 40.0
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 28956420
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 28956420
-Agent response: Aucun document trouvé dans la Knowledge Base pour le numéro Centris 28956420. Impossible d'effectuer l'évaluation des SOUHAITS SECONDAIRES.
+Agent response: 
 
-La Knowledge Base ne contient actuellement aucune information sur cette propriété. Pour procéder à l'évaluation selon les 15 critères des SOUHAITS SECONDAIRES (calme et sécurité, proximité parcs, potentiel de revente, flexibilité, électroménagers, air climatisé, extras, superficie, fenestration, stationnement, isolation, date d'emménagement, aménagement intérieur, espace rangement, zone gazon/jardin), veuillez d'abord ajouter les données de la propriété Centris #28956420 à la Knowledge Base.
+SOUHAITS SECONDAIRES - Centris #28956420
+==========================================
+Document(s) utilisé(s) - Source validée:
+- Source Chhs (contient 28956420)
 
-Vous pouvez également me fournir directement les informations de la propriété si vous les avez disponibles, et je pourrai effectuer l'évaluation.
-No score found in response
+Propriété: 1079 Rue Albani, Longueuil (Le Vieux-Longueuil)
+Prix: 659 000$
+
+Scores Individuels:
+------------------
+16. **Calme et sécurité**: 1.0 point
+   - Terrain d'angle tranquille bordé par deux rues paisibles dans secteur stratégique de Longueuil
+
+17. **Proximité parcs**: 1.0 point
+   - Accès facile aux pistes cyclables et parcs mentionnés, proximité Parc-espace vert
+
+18. **Potentiel de revente**: 1.0 point
+   - Fort potentiel: construction 2014, emplacement stratégique à 15 min du centre-ville Montréal, près métro ligne Jaune
+
+19. **Flexibilité**: 1.0 point
+   - Ville de Longueuil autorise conversion en duplex et construction d'un garage dans la cour
+
+20. **Électroménagers inclus**: 0.0 point
+   - Aucun électroménager mentionné dans les inclusions (seulement éclairage, auvent, aspirateur central, climatiseur)
+
+22. **Air climatisé mural**: 0.5 point
+   - Climatiseur mural inclus dans les inclusions
+
+23. **Extras**: 1.0 point
+   - Terrasse 150 pi² avec auvent rétractable + cabanon 200 pi² + système sécurité/caméras
+
+24. **Superficie habitable**: 1.0 point
+   - Superficie indiquée "0" dans la fiche, mais calcul des pièces suggère environ 1000 pi² (plain-pied + sous-sol aménagé)
+
+25. **Fenestration/Orientation**: 0.5 point
+   - Fenêtres sur les quatre façades, maison lumineuse, terrain d'angle permettant lumière naturelle abondante
+
+26. **Stationnement (Allée)**: 1.0 point
+   - Deux entrées de stationnement donnant sur des rues distinctes, allée en asphalte
+
+27. **Isolation/Résilience hiver**: 0.25 point
+   - Toiture en bardeaux d'asphalte, sous-sol avec insonorisation supérieure et échangeur d'air, mais âge toiture non précisé (construction 2014)
+
+28. **Date d'emménagement**: 1.0 point
+   - Disponibilité immédiate présumée (aucune restriction mentionnée)
+
+29. **Aménagement intérieur**: 0.5 point
+   - Cuisine au rez-de-chaussée + sous-sol entièrement aménagé en 2023 avec matériaux qualité
+
+30. **Espace rangement**: 1.0 point
+   - Cabanon lumineux 200 pi² ET sous-sol aménagé avec rangement, espace sous escalier, salle mécanique
+
+31. **Zone gazon/jardin**: 1.0 point
+   - Terrain 4939.56 pi², cour entièrement clôturée, terrasse arrière aménagée
+
+==========================================
+**SCORE TOTAL - SOUHAITS SECONDAIRES: 11.75 / 15 points**
+
+Calcul détaillé: 1.0 + 1.0 + 1.0 + 1.0 + 0.0 + 0.5 + 1.0 + 1.0 + 0.5 + 1.0 + 0.25 + 1.0 + 0.5 + 1.0 + 1.0 = **11.75**
+
+⚠️ RAPPEL: Seul le document avec l'URL contenant le numéro Centris 28956420 a été utilisé.
+
+
+
+Reference URLs used (1 total):
+  [1] https://charisma.ca/fr/properties/?mls=28956420
+Extracted score: 11.75
 
 centris no 18278673:
 Total criteria rows to process: 129
@@ -655,58 +685,70 @@ Total criteria rows to process: 129
     Piscine (Excel): Non matches NON -> 0.0 pts
     Piscine (Excel): Non -> No match found -> 0 pts
   Souhaits importants category total: 2.0 + 3.0 + 0.0 + 0.0 = 5.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 5.0 + 3.0 + 7.0 + 1.0 + 5.0 + 7.0 + 1.0 + 0.0 + 2.0 + 1.0 + 2.0 = 34.0
   Souhaits importants: 2.0 + 3.0 + 0.0 + 0.0 = 5.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 39.0
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 18278673
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 18278673
 Agent response: 
 
-❌ ÉVALUATION IMPOSSIBLE - DOCUMENT NON DISPONIBLE
+SOUHAITS SECONDAIRES - Centris #18278673
+==========================================
+Document(s) utilisé(s) - Source validée:
+Maison de plain-pied à vendre - Longueuil (Le Vieux-Longueuil) - Pierre Boucher
 
-**Numéro Centris demandé:** 18278673
+Scores Individuels:
+------------------
+16. **Calme et sécurité: 1.0** - Secteur paisible à Longueuil (Pierre Boucher), quartier résidentiel tranquille
 
-**Problème:** Aucun document trouvé dans la Knowledge Base pour cette propriété après recherches exhaustives.
+17. **Proximité parcs: 0.5** - Zone résidentielle de Longueuil, proximité raisonnable aux espaces verts (information limitée)
 
-**Vérifications effectuées:**
-- Recherche par numéro Centris exact (18278673)
-- Recherche par format MLS (mls18278673)
-- Recherche par numéro partiel (18278)
-- Recherches génériques pour identifier les propriétés disponibles
-- Aucun résultat retourné
+18. **Potentiel de revente: 1.0** - Excellent secteur près de l'hôpital Pierre-Boucher, écoles, services, transport en commun
 
-**Conclusion:** La Knowledge Base ne contient actuellement aucune information sur le Centris #18278673. Sans accès aux données de la propriété, je ne peux pas:
-- Évaluer les 15 critères des SOUHAITS SECONDAIRES
-- Attribuer les scores selon la grille d'évaluation
-- Calculer le score total sur 15 points
+19. **Flexibilité: 1.0** - Sous-sol totalement aménagé avec 2 chambres additionnelles et salle familiale, possibilité de revenus
 
-**Solution:** Veuillez vérifier que:
-1. Le numéro Centris 18278673 est correct
-2. Les documents de cette propriété ont été chargés dans la Knowledge Base
-3. Les fichiers sont accessibles et indexés correctement
+20. **Électroménagers inclus: 1.0** - Lave-vaisselle, luminaires, stores et rideaux inclus
 
-Une fois les documents disponibles, je pourrai effectuer l'évaluation complète selon les 15 critères (calme, proximité parcs, potentiel revente, flexibilité, électroménagers, AC mural, extras, superficie, fenestration, stationnement, isolation, date emménagement, aménagement, rangement, gazon/jardin).
+22. **Air climatisé mural: 0.5** - Système de climatisation à air pulsé central (thermopompe centrale mentionnée)
+
+23. **Extras: 1.0** - Terrasse en bois, abri de jardin, BBQ, prise BBQ au gaz naturel, meuble de rangement garage
+
+24. **Superficie habitable: 1.0** - Dimensions 29'8" x 35'2" (environ 1,045 pi²), maison plain-pied
+
+25. **Fenestration/Orientation: 0.25** - Fenêtres PVC, aire ouverte lumineuse, mais orientation non spécifiée
+
+26. **Stationnement (Allée): 0.5** - Garage intégré simple largeur + Tempo pour voiture mentionné (1 place couverte)
+
+27. **Isolation/Résilience hiver: 0.25** - Toiture bardeaux d'asphalte (2001), système chauffage gaz naturel et électricité
+
+28. **Date d'emménagement: 0** - Information non disponible
+
+29. **Aménagement intérieur: 0.5** - Cuisine moderne air ouverte + sous-sol totalement aménagé avec salle familiale
+
+30. **Espace rangement: 1.0** - Abri de jardin ET sous-sol aménagé avec meuble de rangement au garage
+
+31. **Zone gazon/jardin: 1.0** - Cour privée clôturée avec terrasse en bois et aménagements
+
+==========================================
+**SCORE TOTAL - SOUHAITS SECONDAIRES: 10.5 / 15 points**
+
+Calcul détaillé: 1.0 + 0.5 + 1.0 + 1.0 + 1.0 + 0.5 + 1.0 + 1.0 + 0.25 + 0.5 + 0.25 + 0 + 0.5 + 1.0 + 1.0 = **10.5**
+
+⚠️ Points forts: Excellente flexibilité avec sous-sol aménagé, secteur calme recherché, inclusions généreuses, bon potentiel de revente
+⚠️ Points à améliorer: Superficie habitable en dessous de l'optimal (< 1200 pi²), date d'emménagement non précisée
 
 
 
-No score found in response
+Reference URLs used (5 total):
+  [1] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/1429-rue-du-beaujolais-longueuil-le-vieux-longueuil-pierre-boucher-18278673
+  [2] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/1429-rue-du-beaujolais-longueuil-le-vieux-longueuil-pierre-boucher-18278673
+  [3] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/1429-rue-du-beaujolais-longueuil-le-vieux-longueuil-pierre-boucher-18278673
+  [4] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/1429-rue-du-beaujolais-longueuil-le-vieux-longueuil-pierre-boucher-18278673
+  [5] https://www.remax-quebec.com/fr/proprietes/maison-a-vendre-rive-sud-de-montreal/1429-rue-du-beaujolais-longueuil-le-vieux-longueuil-pierre-boucher-18278673
+Extracted score: 10.5
 
 centris no 24569753:
 Total criteria rows to process: 129
@@ -794,40 +836,26 @@ Total criteria rows to process: 129
       Comparing 'Oui' vs 'OUI'
     Piscine (Excel): Oui matches OUI -> 8.0 pts
   Souhaits importants category total: 3.0 + 1.0 + 5.0 + 8.0 = 17.0
-  Processing: Décision recommandée (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟢 EXCELLENT - Propriété idéale, à visiter en priorité (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟡 TRÈS BON - Correspond bien aux critères, à considérer sérieusement (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🟠 ACCEPTABLE - Compromis nécessaires, analyser les manques (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: 🔴 LIMITE - Manques importants, à reconsidérer (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ⛔ À REJETER - Ne correspond pas aux besoins (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Processing: ✓ Obligatoire - Vérifier certificat de localisation (Source: nan, Category: Souhaits secondaires)
-    Found 0 ranges: []
-  Souhaits secondaires category total: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
-  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 7}
+  Processing Souhaits secondaires via Bedrock agent...
+  Criteria processed by category: {'Non-négociables': 11, 'Souhaits importants': 4, 'Souhaits secondaires': 0}
   Non-négociables: 9.0 + 3.0 + 6.0 + 1.0 + 5.0 + 4.0 + 1.0 + 0.0 + 2.0 + 1.0 + 2.0 = 34.0
   Souhaits importants: 3.0 + 1.0 + 5.0 + 8.0 = 17.0
-  Souhaits secondaires: 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 + 0.0 = 0.0
+  Souhaits secondaires:  = 0
   TOTAL: 51.0
 Calling Bedrock agent ZGK3NF5FWW (alias: YQF8BEKCCF) for centris 24569753
 Prompt: Score total pour categorie SOUHAITS SECONDAIRES pour centris num 24569753
-Agent response: SOUHAITS SECONDAIRES - Centris #24569753
-==========================================
+Agent response: Aucun document trouvé dans la Knowledge Base pour le numéro Centris 24569753. Impossible d'effectuer l'évaluation des SOUHAITS SECONDAIRES.
 
-⚠️ **ÉVALUATION IMPOSSIBLE - BASE DE CONNAISSANCES VIDE**
+La Knowledge Base ne contient pas d'informations sur cette propriété. Pour pouvoir calculer le score total de la catégorie SOUHAITS SECONDAIRES (qui comprend 15 critères notés sur un maximum de 15 points), j'aurais besoin d'accéder aux détails de l'annonce tels que:
+- Superficie habitable
+- Équipements et électroménagers inclus
+- Stationnement
+- Aménagements intérieurs
+- Date d'occupation
+- Caractéristiques du terrain
+- Orientation et fenestration
+- Et autres critères secondaires
 
-Après de multiples tentatives de recherche dans la Knowledge Base, aucun document n'a été trouvé. La base de connaissances semble être vide ou inaccessible.
-
-**Statut**: Impossible d'effectuer l'évaluation des SOUHAITS SECONDAIRES pour le Centris #24569753 sans accès aux données de propriété.
-
-**Recommandation**: Veuillez vérifier que:
-1. La Knowledge Base contient des documents
-2. Les permissions d'accès sont correctement configurées
-3. Les documents de propriétés ont été correctement indexés
-4. Le numéro Centris 24569753 existe et est disponible dans les sources de données
+Veuillez vérifier que le numéro Centris est correct ou ajouter les données de cette propriété à la Knowledge Base.
+No reference URLs found in response
 No score found in response
