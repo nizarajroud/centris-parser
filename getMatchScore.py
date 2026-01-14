@@ -124,17 +124,28 @@ def getSouhaitSecondaireScore(centris_num: str, aws_region: str = 'ca-central-1'
         else:
             log_print("No reference URLs found in response")
         
-        # Extract score finale value from format: "SCORE TOTAL - SOUHAITS SECONDAIRES: 8.5 / 15 points"
+        # Extract score finale value from different possible formats
         import re
-        score_match = re.search(r'SCORE TOTAL - SOUHAITS SECONDAIRES:\s*(\d+\.?\d*)\s*/\s*\d+', response_text, re.IGNORECASE)
-        if score_match:
-            score = float(score_match.group(1))
-            log_print(f"Extracted score: {score}")
-            return score
-        else:
-            log_print("No score found in response")
-            log_print(f"Full response text: {response_text}")
-            return 0.0
+        
+        # Try multiple regex patterns to match different response formats
+        patterns = [
+            r'SCORE TOTAL - SOUHAITS SECONDAIRES:\s*(\d+\.?\d*)\s*/\s*\d+',  # Original format
+            r'score total.*SOUHAITS SECONDAIRES.*?(\d+\.?\d*)\s*/\s*\d+',    # Flexible format
+            r'(\d+\.?\d*)\s*/\s*15\s*points?',                               # X / 15 points format
+            r'(\d+\.?\d*)\s*/\s*\d+\s*points?'                               # X / Y points format
+        ]
+        
+        score = 0.0
+        for pattern in patterns:
+            score_match = re.search(pattern, response_text, re.IGNORECASE | re.DOTALL)
+            if score_match:
+                score = float(score_match.group(1))
+                log_print(f"Extracted score using pattern '{pattern}': {score}")
+                return score
+        
+        log_print("No score found with any pattern")
+        log_print(f"Full response text: {response_text}")
+        return 0.0
             
     except Exception as e:
         error_msg = str(e)
@@ -509,11 +520,11 @@ def process_all_properties_from_excel(
             col_indices['details'] = col
         elif header == "score_total":
             col_indices['total'] = col
-        elif header == "score_non_negociables":
+        elif header == "Non_negociables_/65":
             col_indices['non_neg'] = col
-        elif header == "score_souhaits_importants":
+        elif header == "Souhaits_importants_/20":
             col_indices['important'] = col
-        elif header == "score_souhaits_secondaires":
+        elif header == "Souhaits_secondaires_/15":
             col_indices['secondaire'] = col
     
     # Process each row
