@@ -46,8 +46,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
 
 
     with NovaAct(
-        # starting_page="https://matrix.centris.ca/Matrix/Public/Portal.aspx?ID=0-3516933858-10&eml=bml6YXIuYWpyb3VkQGdtYWlsLmNvbQ==&L=1#1",
-        starting_page="https://matrix.centris.ca/Matrix/Public/Portal.aspx?ID=0-3521571244-10&eml=bml6YXIuYWpyb3VkQGdtYWlsLmNvbQ==&L=2",
+        starting_page=os.getenv("STARTING_PAGE"),
         user_data_dir=user_data_dir,
         headless=headless,
         clone_user_data_dir=False,
@@ -235,7 +234,7 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             ws = wb.active
         
         # Add headers
-        headers = ["No Centris", "details-page", "score_total", "score_non_negociables", "score_souhaits_importants", "score_souhaits_secondaires", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
+        headers = ["No Centris", "details-page", "score_total", "Non_negociables_/65", "Souhaits_importants_/20", "Souhaits_secondaires_/15", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
                   "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
@@ -256,9 +255,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields["score_total"] = ""
             
             fields["score_total"] = ""
-            fields["score_non_negociables"] = ""
-            fields["score_souhaits_importants"] = ""
-            fields["score_souhaits_secondaires"] = ""
+            fields["Non_negociables_/65"] = ""
+            fields["Souhaits_importants_/20"] = ""
+            fields["Souhaits_secondaires_/15"] = ""
             fields["WalkScore"] = ""
             fields["DollardDistance"] = ""
             fields["SuperficieDuterrain"] = ""
@@ -312,9 +311,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Centris No.": 1,
                 "details-page": 2,
                 "score_total": 3,
-                "score_non_negociables": 4,
-                "score_souhaits_importants": 5,
-                "score_souhaits_secondaires": 6,
+                "Non_negociables_/65": 4,
+                "Souhaits_importants_/20": 5,
+                "Souhaits_secondaires_/15": 6,
                 "Address": 7,
                 "Price": 8,
                 "Construction Year": 9,
