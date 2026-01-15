@@ -219,8 +219,22 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         listings = soup.find_all("div", class_="multiLineDisplay")
         
         from openpyxl import load_workbook, Workbook
+        import sqlite3
         
         extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
+        
+        # Load manual details from database
+        manual_details_urls = {}
+        try:
+            conn = sqlite3.connect('centris.db')
+            cursor = conn.cursor()
+            cursor.execute('SELECT "Centris ID", "Details page" FROM manual_details')
+            for row in cursor.fetchall():
+                manual_details_urls[row[0]] = row[1]
+            conn.close()
+            print(f"Loaded {len(manual_details_urls)} URLs from database")
+        except Exception as e:
+            print(f"Warning: Could not load from database: {e}")
         
         # Ensure directory exists
         os.makedirs(os.path.dirname(extraction_file), exist_ok=True)
@@ -248,10 +262,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             
             # Set empty score columns and other fields (will be filled by other scripts if needed)
             centris_no = fields.get("Centris No.", "")
-            if centris_no:
-                fields["details-page"] = f"{centris_no}-details"
-            else:
-                fields["details-page"] = ""
+            # Get details page URL from database
+            fields["details-page"] = manual_details_urls.get(centris_no, "")
             fields["score_total"] = ""
             
             fields["score_total"] = ""
@@ -362,22 +374,12 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         ws.cell(row=row, column=col).style = "Hyperlink"
                     else:
                         ws.cell(row=row, column=col, value=value)
-                # Create hyperlink for details-page
+                # Write details-page with hyperlink if URL exists
                 elif field_name == "details-page" and value:
-                    centris_no = fields.get("Centris No.", "")
                     cell = ws.cell(row=row, column=col)
-                    print(f"Looking for centris_no: '{centris_no}' in manual_details_cells")
-                    if centris_no and centris_no in manual_details_cells:
-                        # Copy the cell with its embedded link
-                        source_cell = manual_details_cells[centris_no]
-                        cell.value = source_cell.value
-                        if source_cell.hyperlink:
-                            cell.hyperlink = source_cell.hyperlink
-                            cell.style = "Hyperlink"
-                        print(f"✅ Copied cell for {centris_no}: {source_cell.value}")
-                    else:
-                        cell.value = value
-                        print(f"❌ No cell found for '{centris_no}' - Available keys: {list(manual_details_cells.keys())[:5]}")
+                    cell.hyperlink = value
+                    cell.value = "More details"
+                    cell.style = "Hyperlink"
                 else:
                     ws.cell(row=row, column=col, value=value)
         
