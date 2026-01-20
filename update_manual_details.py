@@ -1,5 +1,9 @@
 import sqlite3
 import sys
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 if len(sys.argv) != 4:
     print("Usage: python update_manual_details.py <centris_id> <details_page_url> <note>")
@@ -9,7 +13,8 @@ centris_id = sys.argv[1]
 details_page_url = sys.argv[2]
 note = sys.argv[3]
 
-conn = sqlite3.connect('centris.db')
+db_path = os.getenv('CENTRIS_DB_PATH', 'centris.db')
+conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 # Create table if it doesn't exist
