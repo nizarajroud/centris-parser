@@ -226,7 +226,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         # Load manual details from database
         manual_details_urls = {}
         try:
-            conn = sqlite3.connect('centris.db')
+            db_path = os.getenv('CENTRIS_DB_PATH', 'centris.db')
+            conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute('SELECT "Centris ID", "Details page" FROM manual_details')
             for row in cursor.fetchall():
@@ -262,9 +263,48 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             
             # Set empty score columns and other fields (will be filled by other scripts if needed)
             centris_no = fields.get("Centris No.", "")
-            # Get details page URL from database
-            fields["details-page"] = manual_details_urls.get(centris_no, "")
-            fields["score_total"] = ""
+            
+            # Check database and insert if needed
+            if centris_no:
+                try:
+                    db_path = os.getenv('CENTRIS_DB_PATH', 'centris.db')
+                    conn = sqlite3.connect(db_path)
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT "Details page" FROM manual_details WHERE "Centris ID" = ?', (centris_no,))
+                    existing = cursor.fetchone()
+                    
+                    if existing:
+                        fields["details-page"] = existing[0]
+                        print(f"Found existing record for {centris_no}, using URL: {existing[0]}")
+                    else:
+                        # Build Centris URL
+                        centris_site = os.getenv('CENTRIS_SITE', '')
+                        if centris_site:
+                            ville = fields.get("City", "").lower().replace(" ", "-")
+                            secteur = fields.get("Sector", "").lower().replace(" ", "-")
+                            import re
+                            secteur = re.sub(r'\([^)]*\)', '', secteur).strip().replace(" ", "-")
+                            
+                            if ville == secteur or not secteur:
+                                centris_url = f"{centris_site}maison~a-vendre~{ville}/{centris_no}"
+                            else:
+                                centris_url = f"{centris_site}maison~a-vendre~{ville}-{secteur}/{centris_no}"
+                            
+                            cursor.execute('''
+                                INSERT INTO manual_details ("Centris ID", "Details page", "Note")
+                                VALUES (?, ?, ?)
+                            ''', (centris_no, centris_url, "Auto-added from Centris URL"))
+                            conn.commit()
+                            fields["details-page"] = centris_url
+                            print(f"Inserted new record for {centris_no} with URL: {centris_url}")
+                        else:
+                            fields["details-page"] = ""
+                    conn.close()
+                except Exception as e:
+                    print(f"Warning: Could not check/update database for {centris_no}: {e}")
+                    fields["details-page"] = manual_details_urls.get(centris_no, "")
+            else:
+                fields["details-page"] = ""
             
             fields["score_total"] = ""
             fields["Non_negociables_/65"] = ""
@@ -364,12 +404,12 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                         secteur = re.sub(r'\([^)]*\)', '', secteur).strip().replace(" ", "-")
                         
                         if ville == secteur or not secteur:
-                            url = f"{centris_site}maison~a-vendre~{ville}/{value}"
+                            centris_url = f"{centris_site}maison~a-vendre~{ville}/{value}"
                         else:
-                            url = f"{centris_site}maison~a-vendre~{ville}-{secteur}/{value}"
+                            centris_url = f"{centris_site}maison~a-vendre~{ville}-{secteur}/{value}"
                         
                         # Create hyperlink
-                        ws.cell(row=row, column=col).hyperlink = url
+                        ws.cell(row=row, column=col).hyperlink = centris_url
                         ws.cell(row=row, column=col).value = value
                         ws.cell(row=row, column=col).style = "Hyperlink"
                     else:

@@ -54,3 +54,13 @@ response = client.update_data_source(
 )
 
 print(f"✅ Added URL to data source {data_source_id}: {new_url}")
+
+# Start ingestion job to sync the data source
+print("🔄 Starting data source synchronization...")
+ingestion_response = client.start_ingestion_job(
+    knowledgeBaseId=kb_id,
+    dataSourceId=data_source_id
+)
+
+job_id = ingestion_response['ingestionJob']['ingestionJobId']
+print(f"✅ Synchronization started with job ID: {job_id}")

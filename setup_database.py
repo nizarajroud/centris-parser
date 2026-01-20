@@ -1,13 +1,19 @@
 import sqlite3
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create database and table
-conn = sqlite3.connect('centris.db')
+db_path = os.getenv('CENTRIS_DB_PATH', 'centris.db')
+conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS manual_details (
     "Centris ID" TEXT PRIMARY KEY,
-    "Details page" TEXT
+    "Details page" TEXT,
+    "Note" TEXT
 )
 ''')
 
