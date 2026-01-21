@@ -83,7 +83,7 @@ def HowFarFromDollard(dollard_address: str, property_address: str, nova) -> str:
         )
         if result and hasattr(result, 'response') and result.response:
             response = result.response.strip()
-            print(f"DollardDistance response: '{response}'")
+            print(f"Dollard response: '{response}'")
             import re
             # Extract number of minutes from response
             time_match = re.search(r'(\d+)', response)
@@ -118,7 +118,7 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
     # Select which fields to process
     if field:
         # Direct field parameter provided
-        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        field_options = ["WalkScore", "Dollard", "Superficie"]
         if field in field_options:
             selected_fields = [field]
         else:
@@ -127,7 +127,7 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
     else:
         # Show menu
         fzf = FzfPrompt()
-        field_options = ["WalkScore", "DollardDistance", "SuperficieDuterrain"]
+        field_options = ["WalkScore", "Dollard", "Superficie"]
         selected_fields = fzf.prompt(field_options, "--prompt='Select fields to process (use TAB for multi-select): ' --multi")
         
         if not selected_fields:
@@ -167,11 +167,11 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
                 address_col = col
             elif header == "WalkScore":
                 walkscore_col = col
-            elif header == "DollardDistance":
+            elif header == "Dollard":
                 dollard_col = col
             elif header == "No Centris":
                 centris_col = col
-            elif header == "SuperficieDuterrain":
+            elif header == "Superficie":
                 superficie_col = col
         
         print(f"Found columns - Address: {address_col}, WalkScore: {walkscore_col}, Dollard: {dollard_col}")
@@ -202,22 +202,22 @@ def main(user_data_dir: str = None, headless: bool = None, field: str = None) ->
                     print(f"Skipping row {row} - already has WalkScore: {current_walkscore}")
             
             # Process Dollard distance if selected and column exists and empty
-            if "DollardDistance" in selected_fields and dollard_col and dollard_address and address:
+            if "Dollard" in selected_fields and dollard_col and dollard_address and address:
                 current_dollard = ws.cell(row=row, column=dollard_col).value
-                print(f"Row {row}: Current DollardDistance value = '{current_dollard}'")
+                print(f"Row {row}: Current Dollard value = '{current_dollard}'")
                 if not current_dollard:
                     print(f"Getting distance to Dollard for row {row}: {address}")
                     dollard_time = HowFarFromDollard(dollard_address, address, nova)
                     if dollard_time:
                         ws.cell(row=row, column=dollard_col, value=int(dollard_time))
                         wb.save(extraction_file)  # Save immediately after each update
-                        print(f"Saved DollardDistance {dollard_time} for row {row}")
+                        print(f"Saved Dollard {dollard_time} for row {row}")
                     time.sleep(2)
                 else:
-                    print(f"Skipping row {row} - already has DollardDistance: {current_dollard}")
+                    print(f"Skipping row {row} - already has Dollard: {current_dollard}")
             
             # Process Superficie du terrain if selected and column exists and empty
-            if "SuperficieDuterrain" in selected_fields and superficie_col and centris_col:
+            if "Superficie" in selected_fields and superficie_col and centris_col:
                 current_superficie = ws.cell(row=row, column=superficie_col).value
                 print(f"Row {row}: Current SuperficieDuterrain value = '{current_superficie}'")
                 if not current_superficie:
