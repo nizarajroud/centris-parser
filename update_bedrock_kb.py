@@ -64,3 +64,36 @@ ingestion_response = client.start_ingestion_job(
 
 job_id = ingestion_response['ingestionJob']['ingestionJobId']
 print(f"✅ Synchronization started with job ID: {job_id}")
+
+# Update Excel file's details-page column
+print("📝 Updating Excel file...")
+import sqlite3
+from openpyxl import load_workbook
+
+extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
+db_path = os.getenv('CENTRIS_DB_PATH', 'centris.db')
+
+# Get Centris ID from database for this URL
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
+cursor.execute('SELECT "Centris ID" FROM manual_details WHERE "Details page" = ?', (new_url,))
+result = cursor.fetchone()
+conn.close()
+
+if result:
+    centris_id = result[0]
+    wb = load_workbook(extraction_file)
+    ws = wb.active
+    
+    # Find the row with this Centris ID and update details-page column
+    for row in range(2, ws.max_row + 1):
+        if str(ws.cell(row=row, column=1).value) == str(centris_id):
+            cell = ws.cell(row=row, column=2)
+            cell.hyperlink = new_url
+            cell.value = "More details"
+            cell.style = "Hyperlink"
+            wb.save(extraction_file)
+            print(f"✅ Updated Excel file for Centris ID {centris_id}")
+            break
+else:
+    print("⚠️  Could not find Centris ID for this URL in database")

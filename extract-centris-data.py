@@ -200,8 +200,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "Sector": extract_sector(address),
                 "Price": price,
                 "Centris No.": centris_no,
-                "Date d'app/maj": format_date(date_sent),
-                "Building Type": extract_field("Type de bâtiment"),
+                "Date": format_date(date_sent),
+                "Type": extract_field("Type de bâtiment"),
                 "Energy/Heating": extract_field("Énergie/Chauffage"),
                 "Garage": extract_field("Garage"),
                 "Rooms": extract_field("Pièces"),
@@ -209,9 +209,9 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
                 "SDB + SE": extract_sdb_se(),
                 "Fireplace-Stove": extract_field("Foyer-Poêle"),
                 "Pool": extract_field("Piscine"),
-                "Building Style": extract_building_style(),
+                "Style": extract_building_style(),
                 "Neighborhood": extract_neighborhood(),
-                "Construction Year": extract_construction_year(),
+                "Year": extract_construction_year(),
                 "Badge": extract_badge(),
             }
         
@@ -249,8 +249,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             ws = wb.active
         
         # Add headers
-        headers = ["No Centris", "details-page", "score_total", "Non_negociables_/65", "Souhaits_importants_/20", "Souhaits_secondaires_/15", "Adresse", "Prix", "Année de construction", "Ville", "Secteur", "WalkScore", "DollardDistance", "SuperficieDuterrain", "Style de bâtiment", 
-                  "Garage", "Badge", "Date d'app/maj", "Quartier", "Adresse rue", "Type de bâtiment", "Pièces", 
+        headers = ["Date", "Badge", "No Centris", "details-page", "score_total", "Non_negociables_/65", "Souhaits_importants_/20", "Souhaits_secondaires_/15", "Adresse", "Prix", "Year", "Ville", "Secteur", "WalkScore", "Dollard", "Superficie", "Style", 
+                  "Garage", "Quartier", "Adresse rue", "Type", "Pièces", 
                   "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
@@ -311,8 +311,8 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             fields["Souhaits_importants_/20"] = ""
             fields["Souhaits_secondaires_/15"] = ""
             fields["WalkScore"] = ""
-            fields["DollardDistance"] = ""
-            fields["SuperficieDuterrain"] = ""
+            fields["Dollard"] = ""
+            fields["Superficie"] = ""
             
             all_listings.append(fields)
         
@@ -360,27 +360,27 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             
             # Map fields to columns
             field_map = {
-                "Centris No.": 1,
-                "details-page": 2,
-                "score_total": 3,
-                "Non_negociables_/65": 4,
-                "Souhaits_importants_/20": 5,
-                "Souhaits_secondaires_/15": 6,
-                "Address": 7,
-                "Price": 8,
-                "Construction Year": 9,
-                "City": 10,
-                "Sector": 11,
-                "WalkScore": 12,
-                "DollardDistance": 13,
-                "SuperficieDuterrain": 14,
-                "Building Style": 15,
-                "Garage": 16,
-                "Badge": 17,
-                "Date d'app/maj": 18,
+                "Date": 1,
+                "Badge": 2,
+                "Centris No.": 3,
+                "details-page": 4,
+                "score_total": 5,
+                "Non_negociables_/65": 6,
+                "Souhaits_importants_/20": 7,
+                "Souhaits_secondaires_/15": 8,
+                "Address": 9,
+                "Price": 10,
+                "Year": 11,
+                "City": 12,
+                "Sector": 13,
+                "WalkScore": 14,
+                "Dollard": 15,
+                "Superficie": 16,
+                "Style": 17,
+                "Garage": 18,
                 "Neighborhood": 19,
                 "Street Address": 20,
-                "Building Type": 21,
+                "Type": 21,
                 "Rooms": 22,
                 "Energy/Heating": 23,
                 "Bedrooms": 24,
