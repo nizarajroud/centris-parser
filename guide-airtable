@@ -1,0 +1,13 @@
+Go to https://airtable.com/create/tokens
+Click "Create new token"
+Give it a name (e.g., "Python Script")
+Add these scopes:
+
+data.records:read (to read records)
+data.records:write (to create/update records)
+schema.bases:read (to read base structure)
+
+
+Under "Access", select the specific base(s) you want to access
+Click "Create token"
+Copy the token immediately (you won't be able to see it again!)

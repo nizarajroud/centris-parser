@@ -218,10 +218,16 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
         soup = BeautifulSoup(nova.page.content(), "html.parser")
         listings = soup.find_all("div", class_="multiLineDisplay")
         
-        from openpyxl import load_workbook, Workbook
+        from pyairtable import Api
         import sqlite3
         
-        extraction_file = os.getenv('EXTRACTION_CENTRIS', 'extraction-centris.xlsx')
+        # Airtable configuration
+        AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
+        AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
+        AIRTABLE_TABLE_NAME = "properties"
+        
+        api = Api(AIRTABLE_API_KEY)
+        table = api.table(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME)
         
         # Load manual details from database
         manual_details_urls = {}
@@ -236,24 +242,6 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             print(f"Loaded {len(manual_details_urls)} URLs from database")
         except Exception as e:
             print(f"Warning: Could not load from database: {e}")
-        
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(extraction_file), exist_ok=True)
-        
-        # Load existing workbook or create new one
-        try:
-            wb = load_workbook(extraction_file)
-            ws = wb.active
-        except:
-            wb = Workbook()
-            ws = wb.active
-        
-        # Add headers
-        headers = ["Date", "Badge", "No Centris", "details-page", "score_total", "Non_negociables_/65", "Souhaits_importants_/20", "Souhaits_secondaires_/15", "Adresse", "Prix", "Year", "Ville", "Secteur", "WalkScore", "Dollard", "Superficie", "Style", 
-                  "Garage", "Quartier", "Adresse rue", "Type", "Pièces", 
-                  "Énergie/Chauffage", "Chambres", "SDB + SE", "Foyer-Poêle", "Piscine"]
-        for col, header in enumerate(headers, 1):
-            ws.cell(row=1, column=col, value=header)
         
         # Extract all listings first
         all_listings = []
@@ -306,17 +294,29 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             else:
                 fields["details-page"] = ""
             
-            fields["score_total"] = ""
-            fields["Non_negociables_/65"] = ""
-            fields["Souhaits_importants_/20"] = ""
-            fields["Souhaits_secondaires_/15"] = ""
-            fields["WalkScore"] = ""
-            fields["Dollard"] = ""
-            fields["Superficie"] = ""
+            # Clean price to show only main price in XXX XXX $ format
+            price = fields.get("Price", "")
+            if price:
+                import re
+                matches = re.findall(r'\d{3}[\d\s,]*\s*\$', price)
+                if matches:
+                    fields["Price"] = matches[0].strip()
             
             all_listings.append(fields)
         
-        # Sort by construction year (most recent to oldest)
+        # Sort by date (most recent first)
+        def date_to_days(date_str):
+            if not date_str:
+                return -1
+            if "aujourd'hui" in date_str:
+                return 0
+            if "depuis" in date_str and "jour" in date_str:
+                import re
+                match = re.search(r'(\d+)', date_str)
+                if match:
+                    return int(match.group(1))
+            return -1
+        
         def year_to_number(year_str):
             if not year_str:
                 return -1
@@ -325,107 +325,43 @@ def main(user_data_dir: str = None, headless: bool = None) -> None:
             except:
                 return -1
         
-        all_listings.sort(key=lambda x: year_to_number(x.get("Construction Year", "")), reverse=True)
+        all_listings.sort(key=lambda x: date_to_days(x.get("Date", "")))
         
-        # Load manual-details tab to get cells with embedded links
-        manual_details_cells = {}
-        try:
-            if 'manual-details' in wb.sheetnames:
-                manual_ws = wb['manual-details']
-                for row_idx, row in enumerate(manual_ws.iter_rows(min_row=2), start=2):
-                    if row[0].value:  # Centris No. in first column
-                        centris_no = str(row[0].value).strip()
-                        if len(row) > 1 and row[1]:  # Cell with link in second column
-                            manual_details_cells[centris_no] = row[1]
-                            print(f"Loaded manual-details: '{centris_no}' -> {row[1].value}")
-                print(f"Loaded {len(manual_details_cells)} cells from manual-details tab")
-            else:
-                print("Warning: manual-details tab not found")
-        except Exception as e:
-            print(f"Warning: Could not load manual-details tab: {e}")
+        # Insert or update records in Airtable
+        existing_records = {r['fields'].get('No Centris'): r['id'] for r in table.all() if 'No Centris' in r['fields']}
         
-        # Write sorted listings starting from row 2
-        for i, fields in enumerate(all_listings, 1):
-            row = i + 1  # Row 2 is listing 1, row 3 is listing 2, etc.
-            
-            # Clean price to show only main price in XXX XXX $ format
-            price = fields.get("Price", "")
-            if price:
-                import re
-                matches = re.findall(r'\d{3}[\d\s,]*\s*\$', price)
-                if matches:
-                    # Take the first (main) price
-                    main_price = matches[0].strip()
-                    fields["Price"] = main_price
-            
-            # Map fields to columns
-            field_map = {
-                "Date": 1,
-                "Badge": 2,
-                "Centris No.": 3,
-                "details-page": 4,
-                "score_total": 5,
-                "Non_negociables_/65": 6,
-                "Souhaits_importants_/20": 7,
-                "Souhaits_secondaires_/15": 8,
-                "Address": 9,
-                "Price": 10,
-                "Year": 11,
-                "City": 12,
-                "Sector": 13,
-                "WalkScore": 14,
-                "Dollard": 15,
-                "Superficie": 16,
-                "Style": 17,
-                "Garage": 18,
-                "Neighborhood": 19,
-                "Street Address": 20,
-                "Type": 21,
-                "Rooms": 22,
-                "Energy/Heating": 23,
-                "Bedrooms": 24,
-                "SDB + SE": 25,
-                "Fireplace-Stove": 26,
-                "Pool": 27
+        for fields in all_listings:
+            centris_no = fields.get("Centris No.", "")
+            record = {
+                "Date": fields.get("Date", ""),
+                "Badge": fields.get("Badge", ""),
+                "No Centris": centris_no,
+                "details-page": fields.get("details-page", ""),
+                "Adresse": fields.get("Address", ""),
+                "Prix": fields.get("Price", ""),
+                "Year": year_to_number(fields.get("Year", "")),
+                "Ville": fields.get("City", ""),
+                "Secteur": fields.get("Sector", ""),
+                "Style": fields.get("Style", ""),
+                "Garage": fields.get("Garage", ""),
+                "Quartier": fields.get("Neighborhood", ""),
+                "Adresse rue": fields.get("Street Address", ""),
+                "Type": fields.get("Type", ""),
+                "Pièces": fields.get("Rooms", ""),
+                "Énergie/Chauffage": fields.get("Energy/Heating", ""),
+                "Chambres": fields.get("Bedrooms", ""),
+                "SDB + SE": fields.get("SDB + SE", ""),
+                "Foyer-Poêle": fields.get("Fireplace-Stove", ""),
+                "Piscine": fields.get("Pool", "")
             }
             
-            for field_name, col in field_map.items():
-                value = fields.get(field_name, "")
-                
-                # Create hyperlink for Centris No.
-                if field_name == "Centris No." and value:
-                    centris_site = os.getenv('CENTRIS_SITE', '')
-                    if centris_site:
-                        ville = fields.get("City", "").lower().replace(" ", "-")
-                        secteur = fields.get("Sector", "").lower().replace(" ", "-")
-                        
-                        # Remove parentheses and content within them from secteur
-                        import re
-                        secteur = re.sub(r'\([^)]*\)', '', secteur).strip().replace(" ", "-")
-                        
-                        if ville == secteur or not secteur:
-                            centris_url = f"{centris_site}maison~a-vendre~{ville}/{value}"
-                        else:
-                            centris_url = f"{centris_site}maison~a-vendre~{ville}-{secteur}/{value}"
-                        
-                        # Create hyperlink
-                        ws.cell(row=row, column=col).hyperlink = centris_url
-                        ws.cell(row=row, column=col).value = value
-                        ws.cell(row=row, column=col).style = "Hyperlink"
-                    else:
-                        ws.cell(row=row, column=col, value=value)
-                # Write details-page with hyperlink if URL exists
-                elif field_name == "details-page" and value:
-                    cell = ws.cell(row=row, column=col)
-                    cell.hyperlink = value
-                    cell.value = "More details"
-                    cell.style = "Hyperlink"
-                else:
-                    ws.cell(row=row, column=col, value=value)
+            if centris_no in existing_records:
+                table.update(existing_records[centris_no], record)
+            else:
+                table.create(record)
         
-        wb.save(extraction_file)
         time.sleep(8)
-        print(f"Extracted {len(listings)} listings to {extraction_file}")
+        print(f"Extracted {len(listings)} listings to Airtable")
 
 
 if __name__ == "__main__":

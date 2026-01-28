@@ -1,4 +1,11 @@
 from bs4 import BeautifulSoup
+from pyairtable import Api
+import os
+
+# Airtable configuration
+AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
+AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
+AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "properties")
 
 fields = [
     "Building Type", "Occupancy", "Expected Delivery Date", "Deed of Sale Signature",
@@ -10,6 +17,7 @@ fields = [
 with open("11.html", "r", encoding="utf-8") as f:
     soup = BeautifulSoup(f, "html.parser")
 
+record = {}
 for field in fields:
     label = soup.find("span", class_="d-textStrong d-fontSize--smallest", string=lambda s: s and field in s)
     if label:
@@ -18,8 +26,13 @@ for field in fields:
             next_div = parent.find_next_sibling("div", class_=lambda c: c and "col-sm-3" in c)
             if next_div:
                 value = next_div.find("span", class_="d-fontSize--smallest")
-                print(f"{field}: {value.get_text(strip=True) if value else 'N/A'}")
+                record[field] = value.get_text(strip=True) if value else "N/A"
             else:
-                print(f"{field}: N/A")
+                record[field] = "N/A"
     else:
-        print(f"{field}: N/A")
+        record[field] = "N/A"
+
+api = Api(AIRTABLE_API_KEY)
+table = api.table(AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME)
+table.create(record)
+print(f"Record created in Airtable: {record}")
